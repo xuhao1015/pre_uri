@@ -8,6 +8,7 @@
       action="fakeAction"
       drag
       :headers="headers"
+      :file-list="txtdata"
       :http-request="uploadSectionFile"
     >
       <i class="el-icon-upload" />
@@ -122,8 +123,8 @@ export default {
     //   dom.submit();
     // },
     uploadSectionFile(form) {
-      console.log(form);
-      axios("/ck/ckUpload", form, {
+      console.log(form.file, this.txtdata);
+      axios("/ck/ckUpload", form.file, {
         headers: { "content-type": "multipart/form-data" }
       }).then(res => {
         console.log("uploadSectionFile", res);
@@ -137,7 +138,8 @@ export default {
     return {
       tableData: [],
       input: "",
-      headers: { "content-type": "multipart/form-data" }
+      headers: { "content-type": "multipart/form-data" },
+      txtdata: []
     };
   }
 };
