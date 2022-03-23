@@ -49,6 +49,7 @@
             </el-form-item>
             <el-form-item>
               <el-col :span="12" style="overflow:hidden">
+                
                 <el-form-item prop="captcha">
                   <el-input
                     v-model="loginForm.code"
@@ -56,7 +57,7 @@
                     auto-complete="off"
                     placeholder="请输入验证码"
                     style="width: 100%;"
-                    @keyup.enter.native="handleLogin"
+                    @keyup.enter.native="handleLogin" 
                   />
                 </el-form-item>
               </el-col>
@@ -79,7 +80,7 @@
               :loading="loading"
               type="primary"
               style="width:100%;"
-              @click.native.prevent="handleLogin"
+              @click.native.prevent="handleLogin" 
             >
               登录
             </el-button>
