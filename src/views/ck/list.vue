@@ -30,34 +30,42 @@
     >
       <el-table-column fixed prop="id" label="id" width="50"> </el-table-column>
       <el-table-column prop="ck" label="ck" width="400"> </el-table-column>
-      <el-table-column prop="createTime" label="createTime" width="120">
+      <el-table-column label="createTime" width="120">
+        <template slot-scope="scope">
+          <span>{{ scope.row.createTime | FormatDate("yyyy-MM-dd") }}</span>
+        </template>
       </el-table-column>
       <el-table-column prop="fileName" label="fileName" width="120">
       </el-table-column>
-      <el-table-column prop="isEnable" label="isEnable" width="40">
-      </el-table-column>
+      <el-table-column prop="isEnable" label="isEnable"> </el-table-column>
       <el-table-column prop="ptPin" label="ptPin" width="120">
       </el-table-column>
-      <el-table-column prop="updateTime" label="updateTime" width="120">
+      <el-table-column label="updateTime" width="120">
+        <template slot-scope="scope">
+          <span>{{ scope.row.updateTime | FormatDate("yyyy-MM-dd") }}</span>
+        </template>
       </el-table-column>
       <el-table-column prop="useTimes" label="useTimes" width="120">
       </el-table-column>
-      <el-table-column fixed="right" label="操作" width="100">
+      <!-- <el-table-column fixed="right" label="操作" width="100">
         <template slot-scope="scope">
           <el-button @click="handleClick(scope.row)" type="text" size="small"
             >查看</el-button
           >
           <el-button type="text" size="small">编辑</el-button>
         </template>
-      </el-table-column>
+      </el-table-column> -->
     </el-table>
-    <el-pagination
-      background
-      layout="prev, pager, next"
-      @current-change="changePage"
-      :total="1000"
-    >
-    </el-pagination>
+    <div class="pagination-flex">
+      <el-pagination
+        background
+        layout="prev, pager, next"
+        @current-change="changePage"
+        :total="pagetotol"
+        page-size="5"
+      >
+      </el-pagination>
+    </div>
   </div>
 </template>
 
@@ -73,9 +81,10 @@ export default {
       //   console.log(row);
     },
     ajax() {
-      getckList({ current: 1 }).then(res => {
+      getckList({ current: 1, size: 5 }).then(res => {
         // console.log(res.data.data.records);
         this.tableData = res.data.data.records;
+        this.pagetotol = res.data.data.total;
       });
     },
     // 根据pt那啥查询
@@ -139,8 +148,18 @@ export default {
       tableData: [],
       input: "",
       headers: { "content-type": "multipart/form-data" },
-      txtdata: []
+      txtdata: [],
+      pagetotol: ""
     };
   }
 };
 </script>
+<style lang="scss" scoped>
+.pagination-flex {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 1rem;
+  background-color: #fff;
+  padding: 20px 40px;
+}
+</style>

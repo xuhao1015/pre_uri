@@ -1,11 +1,3 @@
-<!--
- * @Author: your name
- * @Date: 2022-03-23 21:42:07
- * @LastEditTime: 2022-03-23 21:55:57
- * @LastEditors: Please set LastEditors
- * @Description: 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
- * @FilePath: \pre-ui\src\views\sku\address.vue
--->
 <template>
   <div>
     <h1>地址管理</h1>
@@ -21,29 +13,38 @@
       <el-table-column prop="mark" label="mark" width="120"> </el-table-column>
       <el-table-column prop="step" label="step" width="40"> </el-table-column>
       <el-table-column prop="ext" label="ext" width="120"> </el-table-column>
-      <el-table-column prop="group_num" label="group_num" width="120">
+      <el-table-column prop="groupNum" label="groupNum" width="120">
       </el-table-column>
-      <el-table-column label="is_enable" width="120">
+      <el-table-column label="iEnable" width="120">
         <template slot-scope="scope">
-          <span>{{ scope.row.is_enable }}</span>
+          <span>{{
+            scope.row.isEnable == "0"
+              ? "未启用"
+              : scope.row.isEnable == "1"
+              ? "启用"
+              : "已完成"
+          }}</span>
         </template>
       </el-table-column>
-      <el-table-column fixed="right" label="操作" width="100">
+      <!-- <el-table-column fixed="right" label="操作" width="100">
         <template slot-scope="scope">
           <el-button @click="handleClick(scope.row)" type="text" size="small"
             >查看</el-button
           >
           <el-button type="text" size="small">编辑</el-button>
         </template>
-      </el-table-column>
+      </el-table-column> -->
     </el-table>
-    <el-pagination
-      background
-      layout="prev, pager, next"
-      @current-change="changePage"
-      :total="1000"
-    >
-    </el-pagination>
+    <div class="pagination-flex">
+      <el-pagination
+        background
+        layout="prev, pager, next"
+        @current-change="changePage"
+        :total="pagetotol"
+        page-size="5"
+      >
+      </el-pagination>
+    </div>
   </div>
 </template>
 
@@ -52,7 +53,8 @@ import { getAddress } from "../../api/ajax";
 export default {
   data() {
     return {
-      tableData: []
+      tableData: [],
+      pagetotol: ""
     };
   },
   mounted() {
@@ -60,9 +62,10 @@ export default {
   },
   methods: {
     ajax() {
-      getAddress({ current: 1, pageSize: 5 }).then(res => {
+      getAddress({ current: 1, size: 5 }).then(res => {
         console.log(res);
         this.tableData = res.data.data.records;
+        this.pagetotol = res.data.data.total;
       });
     },
     changePage(val) {
@@ -75,3 +78,12 @@ export default {
   }
 };
 </script>
+<style lang="scss" scoped>
+.pagination-flex {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 1rem;
+  background-color: #fff;
+  padding: 20px 40px;
+}
+</style>
