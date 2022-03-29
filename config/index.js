@@ -7,7 +7,7 @@ module.exports = {
     assetsPublicPath: "/",
     proxyTable: {
       "/pre": {
-        target: "http://505442n6n0.zicp.vip/", //后端接口地址
+        target: "http://192.168.2.149:8081", //后端接口地址
         changeOrigin: true, //是否跨域
         pathRewrite: {
           "^/pre": "/" //重写,

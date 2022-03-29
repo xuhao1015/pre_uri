@@ -1,29 +1,31 @@
 <template>
+  <!-- // 商户管理 -->
   <div>
-    <h1>代理管理</h1>
+    <h1>商户管理</h1>
     <el-table
       :data="tableData"
       border
       :row-key="tableData.id"
       style="width: 100%"
-      header-row-class-name="table-header"
+      fit="true"
     >
       <el-table-column fixed prop="id" label="id"> </el-table-column>
-      <el-table-column prop="agentAddress" label="agentAddress" width="400">
-      </el-table-column>
-      <el-table-column prop="num" label="num"> </el-table-column>
-      <el-table-column prop="expirationTime" label="expirationTime">
-      </el-table-column>
-      <el-table-column prop="isProduct" label="isProduct"> </el-table-column>
-
-      <!-- <el-table-column fixed="right" label="操作" width="100">
+      <el-table-column prop="username" label="用户名"> </el-table-column>
+      <el-table-column prop="password" label="密码"> </el-table-column>
+      <el-table-column label="到期时间">
         <template slot-scope="scope">
-          <el-button @click="handleClick(scope.row)" type="text" size="small"
-            >查看</el-button
-          >
-          <el-button type="text" size="small">编辑</el-button>
+          <span>{{ scope.row.expirationTime | FormatDate("yyyy-MM-dd") }}</span>
         </template>
-      </el-table-column> -->
+      </el-table-column>
+      <el-table-column label="是否正常使用" width="120">
+        <template slot-scope="scope">
+          <span>{{ scope.row.isEnable == 1 ? "正常使用" : "不能使用" }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column prop="tenantName" label="tenantName" width="120">
+      </el-table-column>
+      <el-table-column prop="urlPre" label="urlPre" width="120">
+      </el-table-column>
     </el-table>
     <div class="pagination-flex">
       <el-pagination
@@ -39,7 +41,7 @@
 </template>
 
 <script>
-import { getdaili } from "../../api/ajax";
+import { getjd_tenant } from "../../api/ajax";
 export default {
   data() {
     return {
@@ -52,16 +54,14 @@ export default {
   },
   methods: {
     ajax() {
-      getdaili({ current: 1, size: 5 }).then(res => {
-        console.log("daili", res);
+      getjd_tenant({ current: 1, size: 5 }).then(res => {
+        console.log("getjd_tenant", res);
         this.tableData = res.data.data.records;
         this.pagetotol = res.data.data.total;
       });
     },
     changePage(val) {
-      //   console.log(val);
-      getdaili({ current: val }).then(res => {
-        // console.log(res);
+      getjd_tenant({ current: val }).then(res => {
         this.tableData = res.data.data.records;
       });
     }
@@ -75,8 +75,5 @@ export default {
   margin-top: 1rem;
   background-color: #fff;
   padding: 20px 40px;
-}
-.table-header {
-  background-color: pink;
 }
 </style>

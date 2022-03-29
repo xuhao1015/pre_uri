@@ -1,3 +1,11 @@
+<!--
+ * @Author: your name
+ * @Date: 2022-03-23 21:24:21
+ * @LastEditTime: 2022-03-29 22:37:41
+ * @LastEditors: Please set LastEditors
+ * @Description: 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
+ * @FilePath: \pre-ui\src\views\sku\list.vue
+-->
 <template>
   <div>
     <h1>sku管理</h1>
@@ -10,26 +18,44 @@
     >
       <el-table-column fixed prop="appStoreVo" label="appStoreVo" width="250">
       </el-table-column>
-      <el-table-column prop="config" label="config" width="400">
-      </el-table-column>
+      <!-- <el-table-column prop="config" label="config" width="400">
+      </el-table-column> -->
       <el-table-column prop="groupNum" label="groupNum"> </el-table-column>
       <el-table-column prop="id" label="id"> </el-table-column>
       <el-table-column prop="mark" label="mark"> </el-table-column>
-      <el-table-column prop="skuId" label="skuId" width="120">
+      <el-table-column prop="skuId" label="商品编码" width="120">
       </el-table-column>
-      <el-table-column prop="skuName" label="skuName" width="120">
+      <el-table-column prop="skuName" label="商品名称" width="120">
       </el-table-column>
-      <el-table-column prop="skuPrice" label="skuPrice" width="120">
+      <el-table-column prop="skuPrice" label="商品价格" width="120">
       </el-table-column>
-      <el-table-column prop="url" label="url" width="400"> </el-table-column>
-      <!-- <el-table-column fixed="right" label="操作" width="100">
+      <el-table-column prop="expireTime" label="订单支付过期时间" width="400">
+      </el-table-column>
+      <el-table-column
+        prop="payIdExpireTime"
+        label="库存订单过期时间"
+        width="400"
+      >
+      </el-table-column>
+      <el-table-column prop="productStockNum" label="库存（x/次）" width="400">
+      </el-table-column>
+      <el-table-column prop="isProduct" label="是否生产" width="400">
+        <!-- <template slot-scope="scope">
+         {scope==1?'生产':'不生产'}
+        </template> -->
+      </el-table-column>
+      <!-- <el-table-column prop="url" label="url" width="400"> </el-table-column> -->
+      <el-table-column fixed="right" label="操作" width="100">
         <template slot-scope="scope">
-          <el-button @click="handleClick(scope.row)" type="text" size="small"
-            >查看</el-button
+          <el-button
+            @click="handleClick(scope.row.skuId)"
+            type="text"
+            size="small"
+            >增加库存</el-button
           >
-          <el-button type="text" size="small">编辑</el-button>
+          <!-- <el-button type="text" size="small">编辑</el-button> -->
         </template>
-      </el-table-column> -->
+      </el-table-column>
     </el-table>
     <div class="pagination-flex">
       <el-pagination
@@ -45,7 +71,7 @@
 </template>
 
 <script>
-import { searchskuList } from "../../api/ajax";
+import { searchskuList, addskuid } from "../../api/ajax";
 export default {
   data() {
     return {
@@ -69,6 +95,16 @@ export default {
       searchskuList({ current: val }).then(res => {
         // console.log(res);
         this.tableData = res.data.data.records;
+      });
+    },
+    handleClick(skuId) {
+      addskuid({ skuId: skuId }).then(res => {
+        console.log(res);
+        const h = this.$createElement;
+        this.$notify({
+          title: "库存添加",
+          message: h("i", { style: "color: teal" }, "添加成功")
+        });
       });
     }
   }
