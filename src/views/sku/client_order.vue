@@ -1,7 +1,7 @@
 <template>
   <div>
-    <h1>sku管理</h1>
-    <div class="block" style="margin-bottom:30px">
+    <h1>客户订单管理</h1>
+    <!-- <div class="block" >
       <span class="demonstration">时间选择:</span>
       <el-date-picker
         v-model="value1"
@@ -18,8 +18,20 @@
       <el-radio v-model="radio" label="2">失败</el-radio>
       <el-radio v-model="radio" label="3">退款</el-radio>
       <el-button type="primary" @click="search">查找</el-button>
+    </div> -->
+    <div style="margin-bottom:30px">
+      <el-input
+        v-model="input1"
+        placeholder="请输入订单号"
+        style="width:300px"
+      ></el-input>
+      <el-input
+        v-model="input2"
+        placeholder="请输入外部订单号"
+        style="width:300px"
+      ></el-input>
+      <el-button type="primary" @click="search">查找</el-button>
     </div>
-
     <el-table
       :data="tableData"
       border
@@ -27,48 +39,59 @@
       style="width: 100%"
       fit="true"
     >
-      <el-table-column fixed label="创建时间" width="180">
+      <!-- <el-table-column fixed label="创建时间" width="180">
         <template slot-scope="scope">
           <span>{{
             scope.row.createTime | FormatDate("yyyy-MM-dd HH:mm:ss")
           }}</span>
         </template>
-      </el-table-column>
+      </el-table-column> -->
       <!-- <el-table-column prop="config" label="config" width="400">
       </el-table-column> -->
-      <el-table-column prop="groupNum" label="通道"> </el-table-column>
-      <el-table-column prop="id" label="编号"> </el-table-column>
-      <el-table-column prop="orderClientId" label="订单号"> </el-table-column>
-      <el-table-column prop="orderPtId" label="JD订单号"> </el-table-column>
-      <el-table-column prop="orderStatus" label="订单状态">
-        <template slot-scope="scope">
-          <span v-if="scope.row.orderStatus == 0">
-            未匹配
-          </span>
-          <span v-else-if="scope.row.orderStatus == 1">
-            成功
-          </span>
-          <span v-else-if="scope.row.orderStatus == 2">
+      <el-table-column prop="subject" label="商品"> </el-table-column>
+      <el-table-column prop="tradeNo" label="订单号"> </el-table-column>
+
+      <el-table-column prop="outTradeNo" label="外部订单号"> </el-table-column>
+      <el-table-column prop="originalTradeNo" label="JD订单号">
+      </el-table-column>
+      <el-table-column prop="paySuccessTime" label="成功支付时间">
+      </el-table-column>
+      <el-table-column prop="skuName" label="商品名称"> </el-table-column>
+      <el-table-column prop="cardNumber" label="卡号"> </el-table-column>
+      <el-table-column prop="carMy" label="卡密"> </el-table-column>
+      <el-table-column prop="money" label="价格"> </el-table-column>
+      <el-table-column
+        prop="orderStatus"
+        label="订单状态"
+        style='`${scope.row.status == 0 "color:red" ?(scope.row.status == 1?"":"color:green")}`'
+      >
+        <template slot-scope="scope" class="fail">
+          <span v-if="scope.row.status == 0">
             失败
           </span>
-          <span v-else>
-            退款
+          <span v-else-if="scope.row.status == 1">
+            待支付
+          </span>
+          <span v-else-if="scope.row.status == 2" style="color:green">
+            支付成功
           </span>
         </template>
       </el-table-column>
-      <el-table-column prop="price" label="价格"> </el-table-column>
-      <el-table-column prop="tenantId" label="商家编号"> </el-table-column>
-      <el-table-column prop="tenantName" label="商家姓名"> </el-table-column>
 
-      <!-- <el-table-column prop="url" label="url" width="400"> </el-table-column> -->
-      <!-- <el-table-column fixed="right" label="操作" width="100">
+      <el-table-column label="通知是否成功">
         <template slot-scope="scope">
-          <el-button @click="handleClick(scope.row)" type="text" size="small"
-            >查看</el-button
-          >
-          <el-button type="text" size="small">编辑</el-button>
+          <span>{{ scope.row.notifySucc == 1 ? "成功" : "失败" }}</span>
         </template>
-      </el-table-column> -->
+      </el-table-column>
+
+      <!-- <el-table-column prop="ptId" label="" width="400"> </el-table-column> -->
+      <el-table-column fixed="right" label="操作" width="100">
+        <template slot-scope="scope">
+          <el-button @click="handleClick(scope.row.id)" type="text" size="small"
+            >获取卡密</el-button
+          >
+        </template>
+      </el-table-column>
     </el-table>
     <div class="pagination-flex">
       <el-pagination
@@ -84,17 +107,19 @@
 </template>
 
 <script>
-import { getclient_order } from "../../api/ajax";
+import { getclient_order, getcallback } from "../../api/ajax";
 export default {
   data() {
     return {
       tableData: [],
       pagetotol: "",
-      value1: [
-        this.formatDate(new Date() - 3600 * 24 * 1000, "yyyy-MM-dd HH:mm:ss"),
-        this.formatDate(new Date(), "yyyy-MM-dd HH:mm:ss")
-      ],
-      radio: "0"
+      input1: "",
+      input2: ""
+      // value1: [
+      //   this.formatDate(new Date() - 3600 * 24 * 1000, "yyyy-MM-dd HH:mm:ss"),
+      //   this.formatDate(new Date(), "yyyy-MM-dd HH:mm:ss")
+      // ],
+      // radio: "0"
     };
   },
   mounted() {
@@ -104,7 +129,7 @@ export default {
   methods: {
     ajax() {
       getclient_order({ current: 1, size: 5 }).then(res => {
-        // console.log("getclient_order", res);
+        console.log("getclient_order", res);
         this.tableData = res.data.data.records;
         this.pagetotol = res.data.data.total;
       });
@@ -115,30 +140,23 @@ export default {
       });
     },
     search() {
-      console.log("value1", this.value1);
-      let [startTime, endTime] = this.value1;
-      //   全选不带订单状态，不全选带上
-      if (this.radio == "-1") {
-        getclient_order({
-          //   current: val,
-          size: 5,
-          startTime: startTime,
-          endTime: endTime
-        }).then(res => {
-          this.tableData = res.data.data.records;
-        });
-      } else {
-        getclient_order({
-          //   current: val,
-          size: 5,
-          startTime: startTime,
-          endTime: endTime,
-          orderStatus: this.radio
-        }).then(res => {
-          console.log("search===", res.data.data.records);
-          this.tableData = res.data.data.records;
-        });
-      }
+      getclient_order({
+        tradeNo: this.input1,
+        outTradeNo: this.input2
+      }).then(res => {
+        this.tableData = res.data.data.records;
+      });
+    },
+    handleClick(id) {
+      getcallback({ id }).then(res => {
+        if (res.data.code == 200) {
+          const h = this.$createElement;
+          this.$notify({
+            title: "获取成功",
+            message: h("i", { style: "color: teal" }, "获取成功")
+          });
+        }
+      });
     },
     formatDate(date, fmt) {
       date = new Date(date);
@@ -179,5 +197,8 @@ export default {
   margin-top: 1rem;
   background-color: #fff;
   padding: 20px 40px;
+}
+.fail {
+  color: red;
 }
 </style>

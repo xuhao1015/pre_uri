@@ -2,17 +2,34 @@
   <div class="wel-contailer">
     <div class="banner-text">
       <div style="text-align: center;">
-        <img src="https://gitee.com/li_haodong/picture_management/raw/master/pic/WechatIMG9.png" height="256" width="256" alt="pre系统logo">
+        <img
+          src="https://gitee.com/li_haodong/picture_management/raw/master/pic/WechatIMG9.png"
+          height="256"
+          width="256"
+          alt="pre系统logo"
+        />
       </div>
       <span>
         <a href="https://gitee.com/li_haodong/pre" target="_blank">
-          <img src="https://img.shields.io/badge/Pre-1.1-green.svg" alt="Build Status">
+          <img
+            src="https://img.shields.io/badge/Pre-1.1-green.svg"
+            alt="Build Status"
+          />
         </a>
-        <img src="https://img.shields.io/badge/spring--boot-2.1.6.RELEASE-green.svg" alt="spring-boot">
-        <img src="https://img.shields.io/badge/security-5.1.5-blue.svg" alt="security">
-        <img src="https://img.shields.io/badge/mybatis--plus-3.1.2-blue.svg" alt="mybatis-plus">
+        <img
+          src="https://img.shields.io/badge/spring--boot-2.1.6.RELEASE-green.svg"
+          alt="spring-boot"
+        />
+        <img
+          src="https://img.shields.io/badge/security-5.1.5-blue.svg"
+          alt="security"
+        />
+        <img
+          src="https://img.shields.io/badge/mybatis--plus-3.1.2-blue.svg"
+          alt="mybatis-plus"
+        />
       </span>
-      <br>
+      <br />
       <span>
         <el-collapse v-model="activeNames">
           <el-collapse-item title="Pre RBAC权限管理系统" name="1">
@@ -35,9 +52,16 @@
             <div>基于Mybatis拦截器 + 策略模式实现数据权限控制</div>
           </el-collapse-item>
           <el-collapse-item title="基本功能" name="4">
-            <div>用户管理 、角色管理 、角色管理 、菜单管理 、部门管理 、社交账号管理</div>
+            <div>
+              用户管理 、角色管理 、角色管理 、菜单管理 、部门管理
+              、社交账号管理
+            </div>
             <div>岗位管理 、字典管理 、操作日志 、异常日志 、代码生成</div>
-            <div><a href="https://gitee.com/li_haodong/pre" target="_blank">详细介绍Pre </a></div>
+            <div>
+              <a href="https://gitee.com/li_haodong/pre" target="_blank"
+                >详细介绍Pre
+              </a>
+            </div>
           </el-collapse-item>
         </el-collapse>
       </span>
@@ -46,72 +70,76 @@
 </template>
 
 <script>
+import { formatData, getUrlKey } from "@/utils/webUtils";
 export default {
-  name: 'Index',
+  name: "Index",
   data() {
     return {
-      activeNames: ['1', '2', '3', '4'],
+      activeNames: ["1", "2", "3", "4"],
       DATA: [],
-      text: '',
-      actor: '',
+      text: "",
+      actor: "",
       count: 0,
       isText: false
-    }
+    };
   },
 
-  methods: {
+  methods: {},
+  mounted() {
+    let token = getUrlKey("token");
+    console.log("token", token);
   }
-}
+};
 </script>
 
 <style scoped="scoped" lang="scss">
-  .wel-contailer {
-    position: relative;
-  }
+.wel-contailer {
+  position: relative;
+}
 
-  .banner-text {
-    position: relative;
-    padding: 0 20px;
-    font-size: 20px;
-    text-align: center;
-    color: #333;
-  }
+.banner-text {
+  position: relative;
+  padding: 0 20px;
+  font-size: 20px;
+  text-align: center;
+  color: #333;
+}
 
-  .banner-img {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    opacity: 0.8;
-    display: none;
-  }
+.banner-img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0.8;
+  display: none;
+}
 
-  .actor {
-    height: 250px;
-    overflow: hidden;
-    font-size: 18px;
-    color: #333;
-  }
+.actor {
+  height: 250px;
+  overflow: hidden;
+  font-size: 18px;
+  color: #333;
+}
 
-  .actor:after {
-    content: '';
-    width: 3px;
-    height: 25px;
-    vertical-align: -5px;
-    margin-left: 5px;
-    background-color: #333;
-    display: inline-block;
-    animation: blink 0.4s infinite alternate;
-  }
+.actor:after {
+  content: "";
+  width: 3px;
+  height: 25px;
+  vertical-align: -5px;
+  margin-left: 5px;
+  background-color: #333;
+  display: inline-block;
+  animation: blink 0.4s infinite alternate;
+}
 
-  .typeing:after {
-    animation: none;
-  }
+.typeing:after {
+  animation: none;
+}
 
-  @keyframes blink {
-    to {
-      opacity: 0;
-    }
+@keyframes blink {
+  to {
+    opacity: 0;
   }
+}
 </style>
