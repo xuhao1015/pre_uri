@@ -124,3 +124,12 @@ export function getbaifenbi(start,end) {
     // params: params
   });
 }
+
+//导出卡密
+export function outKm(carMy) {
+  return request({
+    url: `/ck/upload/uploadMy?carMy=${carMy}`,
+    method: "get",
+    // params: params
+  });
+}
