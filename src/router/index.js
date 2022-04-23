@@ -34,11 +34,7 @@ export const constantRoutes = [
     component: () => import("@/views/login/bind"),
     hidden: true
   },
-  {
-    path: "/404",
-    component: () => import("@/views/errorPage/404"),
-    hidden: true
-  },
+
   {
     path: "/401",
     component: () => import("@/views/errorPage/401"),
@@ -70,6 +66,11 @@ export const constantRoutes = [
         meta: { title: "个人中心", icon: "user" }
       }
     ]
+  },
+  {
+    path: "/404",
+    component: () => import("@/views/redirect/index"),
+    hidden: true
   }
 ];
 

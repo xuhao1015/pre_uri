@@ -116,3 +116,11 @@ export function getcallback(params) {
     params: params
   });
 }
+//订单 成功概率
+export function getbaifenbi(start,end) {
+  return request({
+    url: `/ck/statistics?start=${start}&end=${end}`,
+    method: "get",
+    // params: params
+  });
+}

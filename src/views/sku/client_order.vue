@@ -32,6 +32,19 @@
       ></el-input>
       <el-button type="primary" @click="search">查找</el-button>
     </div>
+    <div class="div-flex">
+      <span class="demonstration">时间选择:</span>
+      <el-date-picker
+        v-model="value1"
+        type="datetimerange"
+        range-separator="至"
+        start-placeholder="开始日期"
+        end-placeholder="结束日期"
+      >
+      </el-date-picker>
+      <p>订单成功率：<span>{{baifenbi}}</span></p>
+      <el-button type="primary" @click="chaxun()">查询成功率</el-button>
+    </div>
     <el-table
       :data="tableData"
       border
@@ -50,13 +63,16 @@
       </el-table-column> -->
       <el-table-column prop="subject" label="商品"> </el-table-column>
       <el-table-column prop="tradeNo" label="订单号"> </el-table-column>
-
+      <el-table-column prop="skuName" label="商品名称" show-overflow-tooltip> </el-table-column>
+      <el-table-column prop="amount" label="订单金额"> </el-table-column>
       <el-table-column prop="outTradeNo" label="外部订单号"> </el-table-column>
       <el-table-column prop="originalTradeNo" label="JD订单号">
       </el-table-column>
       <el-table-column prop="paySuccessTime" label="成功支付时间">
       </el-table-column>
-      <el-table-column prop="skuName" label="商品名称"> </el-table-column>
+      <el-table-column prop="matchTime" label="匹配时间(s)"> </el-table-column>
+      <el-table-column prop="payUrl" label="支付链接" show-overflow-tooltip> </el-table-column>
+
       <el-table-column prop="cardNumber" label="卡号"> </el-table-column>
       <el-table-column prop="carMy" label="卡密"> </el-table-column>
       <el-table-column prop="money" label="价格"> </el-table-column>
@@ -107,7 +123,7 @@
 </template>
 
 <script>
-import { getclient_order, getcallback } from "../../api/ajax";
+import { getclient_order, getcallback,getbaifenbi } from "../../api/ajax";
 export default {
   data() {
     return {
@@ -119,7 +135,10 @@ export default {
       //   this.formatDate(new Date() - 3600 * 24 * 1000, "yyyy-MM-dd HH:mm:ss"),
       //   this.formatDate(new Date(), "yyyy-MM-dd HH:mm:ss")
       // ],
-      // radio: "0"
+      // radio: "0",
+      ,
+      baifenbi:'',
+      value1:[]
     };
   },
   mounted() {
@@ -139,6 +158,14 @@ export default {
         this.tableData = res.data.data.records;
       });
     },
+  chaxun(){
+      console.log('time=',this.value1)
+var that=this;
+    getbaifenbi(this.formatDate(this.value1[0], "yyyy-MM-dd HH:mm:ss"),this.formatDate(this.value1[1], "yyyy-MM-dd HH:mm:ss")).then(res=>{
+      console.log(res.data)
+      that.baifenbi=res.data.data+'%'
+    })
+  },
     search() {
       getclient_order({
         tradeNo: this.input1,
@@ -201,4 +228,20 @@ export default {
 .fail {
   color: red;
 }
+.div-flex{
+  display: flex;
+  justify-content: start;
+  flex-wrap: nowrap;
+  p{
+    margin-left: 2%;
+    margin-top: 5px;
+    margin-right: 2%;
+    color: green;span{
+    font-weight: bolder;
+    font-size: larger;
+  }
+  }
+
+}
+
 </style>
