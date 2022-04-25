@@ -69,16 +69,17 @@
       </el-table-column> -->
       <!-- <el-table-column prop="config" label="config" width="400">
       </el-table-column> -->
-      <el-table-column prop="" label="订单支付详情" show-overflow-tooltip>
+      <el-table-column label="订单支付详情" show-overflow-tooltip>
         <template slot-scope="scope">
-          <el-popover
+          <!-- <el-popover
             width="1000"
             placement="top-start"
             trigger="hover"
-            :content="scope.row.html"
+            :content="document.write(scope.row.html)"
           >
             <span slot="reference" class="btn">{{ scope.row.html }}</span>
-          </el-popover>
+          </el-popover> -->
+          <el-button @click="showModal(scope.row.html)">查看</el-button>
         </template>
       </el-table-column>
       <el-table-column prop="subject" label="商品"> </el-table-column>
@@ -89,8 +90,9 @@
       <el-table-column prop="outTradeNo" label="外部订单号"> </el-table-column>
       <el-table-column prop="originalTradeNo" label="JD订单号">
       </el-table-column>
-      
-       <el-table-column prop="createTimeStr" label="订单创建时间"> </el-table-column>
+
+      <el-table-column prop="createTimeStr" label="订单创建时间">
+      </el-table-column>
       <el-table-column prop="" label="成功支付时间">
         <template slot-scope="scope">
           <span>{{ scope.row.paySuccessTime }}</span>
@@ -99,7 +101,7 @@
       <el-table-column prop="matchTime" label="匹配时间(s)"> </el-table-column>
       <el-table-column prop="payUrl" label="支付链接" show-overflow-tooltip>
       </el-table-column>
-      
+
       <el-table-column prop="failTime" label="失败次数"> </el-table-column>
       <el-table-column
         prop="userAgent"
@@ -150,11 +152,31 @@
       >
       </el-pagination>
     </div>
+    <!-- <div id="Modal"></div> -->
+    <el-dialog
+      title="支付详情"
+      :visible.sync="dialogVisible"
+      width="30%"
+      :before-close="handleClose"
+    >
+      <div id="Modal"></div>
+      <!-- <span slot="footer" class="dialog-footer">
+        <el-button @click="dialogVisible = false">取 消</el-button>
+        <el-button type="primary" @click="dialogVisible = false"
+          >确 定</el-button
+        >
+      </span> -->
+    </el-dialog>
   </div>
 </template>
 
 <script>
-import { getclient_order, getcallback, getbaifenbi,outKm } from "../../api/ajax";
+import {
+  getclient_order,
+  getcallback,
+  getbaifenbi,
+  outKm
+} from "../../api/ajax";
 export default {
   data() {
     return {
@@ -162,14 +184,11 @@ export default {
       pagetotol: "",
       input1: "",
       input2: "",
-      // value1: [
-      //   this.formatDate(new Date() - 3600 * 24 * 1000, "yyyy-MM-dd HH:mm:ss"),
-      //   this.formatDate(new Date(), "yyyy-MM-dd HH:mm:ss")
-      // ],
-      // radio: "0",
       baifenbi: "",
       value1: [],
-      outkami_input:'',
+      outkami_input: "",
+      dialogVisible: false //dialog弹窗
+      // dataHtml: null
     };
   },
   mounted() {
@@ -177,19 +196,38 @@ export default {
     // console.log();
   },
   methods: {
-    outkami(){
+    // 展示HTML
+    showModal(html) {
+      this.dialogVisible = true;
+      this.$nextTick(() => {
+        let dom = document.querySelector("#Modal");
+        dom.innerHTML = html;
+      });
+    },
+    handleClose(done) {
+      done();
+      // this.$confirm("确认关闭？")
+      //   .then(_ => {
+      //     done();
+      //   })
+      //   .catch(_ => {});
+    },
+    // 下载
+    outkami() {
       // console.log('sraer',)
-      window.location.href=`http://${window.location.hostname}:8888/pre/ck/upload/uploadMy?carMy=${this.outkami_input}`
+      window.location.href = `http://${
+        window.location.hostname
+      }:8888/pre/ck/upload/uploadMy?carMy=${this.outkami_input}`;
     },
     ajax() {
-      getclient_order({ current: 1, size: 5 }).then((res) => {
+      getclient_order({ current: 1, size: 5 }).then(res => {
         console.log("getclient_order", res);
         this.tableData = res.data.data.records;
         this.pagetotol = res.data.data.total;
       });
     },
     changePage(val) {
-      getclient_order({ current: val, size: 5 }).then((res) => {
+      getclient_order({ current: val, size: 5 }).then(res => {
         this.tableData = res.data.data.records;
       });
     },
@@ -199,7 +237,7 @@ export default {
       getbaifenbi(
         this.formatDate(this.value1[0], "yyyy-MM-dd HH:mm:ss"),
         this.formatDate(this.value1[1], "yyyy-MM-dd HH:mm:ss")
-      ).then((res) => {
+      ).then(res => {
         console.log(res.data);
         that.baifenbi = res.data.data + "%";
       });
@@ -207,18 +245,18 @@ export default {
     search() {
       getclient_order({
         tradeNo: this.input1,
-        outTradeNo: this.input2,
-      }).then((res) => {
+        outTradeNo: this.input2
+      }).then(res => {
         this.tableData = res.data.data.records;
       });
     },
     handleClick(id) {
-      getcallback({ id }).then((res) => {
+      getcallback({ id }).then(res => {
         if (res.data.code == 200) {
           const h = this.$createElement;
           this.$notify({
             title: "获取成功",
-            message: h("i", { style: "color: teal" }, "获取成功"),
+            message: h("i", { style: "color: teal" }, "获取成功")
           });
         }
       });
@@ -239,7 +277,7 @@ export default {
         "d+": date.getDate(),
         "H+": date.getHours(),
         "m+": date.getMinutes(),
-        "s+": date.getSeconds(),
+        "s+": date.getSeconds()
       };
       for (let k in o) {
         if (new RegExp(`(${k})`).test(fmt)) {
@@ -251,11 +289,24 @@ export default {
         }
       }
       return fmt;
-    },
-  },
+    }
+  }
 };
 </script>
 <style lang="scss" scoped>
+// 隐藏hover显示框
+.el-tooltip__popper {
+  display: none;
+}
+// #Modal {
+//   position: absolute;
+//   left: 100px;
+//   top: 0;
+//   width: 1000px;
+//   z-index: 3;
+//   background-color: lightgray;
+//   display: none;
+// }
 .pagination-flex {
   display: flex;
   justify-content: flex-end;
