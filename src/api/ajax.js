@@ -133,3 +133,16 @@ export function outKm(carMy) {
     // params: params
   });
 }
+
+export function uploadFile(formData,skuid) {
+  return request({
+    url: `/ck/checkList?skuId=${skuid}`,
+    method: 'post',
+    data: formData,
+    isFormData: true,
+    headers: {
+      'Content-Type': 'multipartt/form-data'
+    }
+  })
+}
+
