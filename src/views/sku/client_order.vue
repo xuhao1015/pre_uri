@@ -1,58 +1,50 @@
 <template>
   <div>
     <h1>客户订单管理</h1>
-    <!-- <div class="block" >
-      <span class="demonstration">时间选择:</span>
-      <el-date-picker
-        v-model="value1"
-        type="datetimerange"
-        range-separator="至"
-        start-placeholder="开始日期"
-        end-placeholder="结束日期"
-      >
-      </el-date-picker>
-      <span class="demonstration">订单状态:</span>
-      <el-radio v-model="radio" label="-1">全部</el-radio>
-      <el-radio v-model="radio" label="0">未匹配</el-radio>
-      <el-radio v-model="radio" label="1">成功</el-radio>
-      <el-radio v-model="radio" label="2">失败</el-radio>
-      <el-radio v-model="radio" label="3">退款</el-radio>
-      <el-button type="primary" @click="search">查找</el-button>
-    </div> -->
     <div style="margin-bottom: 30px">
       <el-input
         v-model="input1"
-        placeholder="请输入订单号"
-        style="width: 300px"
+        placeholder="请输入系统订单号"
+        style="width: 150px"
       ></el-input>
       <el-input
         v-model="input2"
         placeholder="请输入外部订单号"
-        style="width: 300px"
+        style="width: 150px"
       ></el-input>
-      <el-button type="primary" @click="search">查找</el-button>
-    </div>
-    <div class="div-flex">
-      <span class="demonstration">时间选择:</span>
+      <el-input
+        v-model="originalTradeNo"
+        placeholder="请输入JD订单号"
+        style="width: 150px"
+      ></el-input>
+
       <el-date-picker
-        v-model="value1"
+        v-model="searchTime"
         type="datetimerange"
         range-separator="至"
         start-placeholder="开始日期"
         end-placeholder="结束日期"
       >
       </el-date-picker>
-      <p>
-        订单成功率：<span>{{ baifenbi }}</span>
-      </p>
-      <el-button type="primary" @click="chaxun()">查询成功率</el-button>
-      <el-input
-        v-model="outkami_input"
-        placeholder="请输入卡密"
-        style="width: 300px"
-      ></el-input>
-      <el-button type="danger" @click="outkami()">导出</el-button>
+<!-- 0，失败，1待支付，2支付成功 -->
+      <el-select v-model="PayorderStatus" placeholder="请选择">
+        <el-option
+          v-for="item in [{name:'失败',val:0},{name:'待支付',val:1},{name:'支付成功',val:2},{name:'全部',val:null}]"
+          :key="item.val"
+          :label="item.name"
+          :value="item.val"
+        >
+        </el-option>
+      </el-select>
+      <el-button type="primary" @click="search">查找</el-button>
     </div>
+    <el-input
+      v-model="outkami_input"
+      placeholder="请输入卡密"
+      style="width: 300px"
+    ></el-input>
+    <el-button type="danger" @click="outkami()">导出</el-button>
+
     <el-table
       :data="tableData"
       border
@@ -71,21 +63,13 @@
       </el-table-column> -->
       <el-table-column label="订单支付详情" show-overflow-tooltip>
         <template slot-scope="scope">
-          <!-- <el-popover
-            width="1000"
-            placement="top-start"
-            trigger="hover"
-            :content="document.write(scope.row.html)"
-          >
-            <span slot="reference" class="btn">{{ scope.row.html }}</span>
-          </el-popover> -->
           <el-button @click="showModal(scope.row.html)">查看</el-button>
         </template>
       </el-table-column>
-      <el-table-column prop="subject" label="商品"> </el-table-column>
+      <!-- <el-table-column prop="subject" label="商品"> </el-table-column> -->
       <el-table-column prop="tradeNo" label="订单号"> </el-table-column>
-      <el-table-column prop="skuName" label="商品名称" show-overflow-tooltip>
-      </el-table-column>
+      <!-- <el-table-column prop="skuName" label="商品名称" show-overflow-tooltip> -->
+      <!-- </el-table-column> -->
       <el-table-column prop="amount" label="订单金额"> </el-table-column>
       <el-table-column prop="outTradeNo" label="外部订单号"> </el-table-column>
       <el-table-column prop="originalTradeNo" label="JD订单号">
@@ -99,20 +83,23 @@
         </template>
       </el-table-column>
       <el-table-column prop="matchTime" label="匹配时间(s)"> </el-table-column>
-      <el-table-column prop="payUrl" label="支付链接" show-overflow-tooltip>
-      </el-table-column>
+      <!-- <el-table-column prop="payUrl" label="支付链接" show-overflow-tooltip>
+      </el-table-column> -->
 
-      <el-table-column prop="failTime" label="失败次数"> </el-table-column>
+      <!-- <el-table-column prop="failTime" label="失败次数"> </el-table-column> -->
       <el-table-column
-        prop="userAgent"
+        
         label="用户请求头"
-        show-overflow-tooltip
+     
       >
+      <template slot-scope="{row}">
+          {{row.userAgent && row.userAgent.match(/android/i)?'Android':'IOS'}}
+        </template>
       </el-table-column>
       <el-table-column prop="userIp" label="用户请求IP"> </el-table-column>
       <el-table-column prop="cardNumber" label="卡号"> </el-table-column>
       <!-- <el-table-column prop="carMy" label="卡密"> </el-table-column> -->
-      <el-table-column prop="money" label="价格"> </el-table-column>
+      <!-- <el-table-column prop="money" label="价格"> </el-table-column> -->
       <el-table-column
         prop="orderStatus"
         label="订单状态"
@@ -148,9 +135,24 @@
         layout="prev, pager, next"
         @current-change="changePage"
         :total="pagetotol"
-        page-size="5"
+        page-size="30"
       >
       </el-pagination>
+    </div>
+    <div class="div-flex">
+      <span class="demonstration">时间选择:</span>
+      <el-date-picker
+        v-model="value1"
+        type="datetimerange"
+        range-separator="至"
+        start-placeholder="开始日期"
+        end-placeholder="结束日期"
+      >
+      </el-date-picker>
+      <p>
+        订单成功率：<span>{{ baifenbi }}</span>
+      </p>
+      <el-button type="primary" @click="chaxun()">查询成功率</el-button>
     </div>
     <!-- <div id="Modal"></div> -->
     <el-dialog
@@ -175,7 +177,7 @@ import {
   getclient_order,
   getcallback,
   getbaifenbi,
-  outKm
+  outKm,
 } from "../../api/ajax";
 export default {
   data() {
@@ -187,7 +189,10 @@ export default {
       baifenbi: "",
       value1: [],
       outkami_input: "",
-      dialogVisible: false //dialog弹窗
+      dialogVisible: false, //dialog弹窗
+      originalTradeNo: "",
+      searchTime: [],
+      PayorderStatus:null
       // dataHtml: null
     };
   },
@@ -215,19 +220,17 @@ export default {
     // 下载
     outkami() {
       // console.log('sraer',)
-      window.location.href = `http://${
-        window.location.hostname
-      }:8888/pre/ck/upload/uploadMy?carMy=${this.outkami_input}`;
+      window.location.href = `http://${window.location.hostname}:8888/pre/ck/upload/uploadMy?carMy=${this.outkami_input}`;
     },
     ajax() {
-      getclient_order({ current: 1, size: 5 }).then(res => {
+      getclient_order({ current: 1, size: 30 }).then((res) => {
         console.log("getclient_order", res);
         this.tableData = res.data.data.records;
         this.pagetotol = res.data.data.total;
       });
     },
     changePage(val) {
-      getclient_order({ current: val, size: 5 }).then(res => {
+      getclient_order({ current: val, size: 30 }).then((res) => {
         this.tableData = res.data.data.records;
       });
     },
@@ -237,26 +240,44 @@ export default {
       getbaifenbi(
         this.formatDate(this.value1[0], "yyyy-MM-dd HH:mm:ss"),
         this.formatDate(this.value1[1], "yyyy-MM-dd HH:mm:ss")
-      ).then(res => {
+      ).then((res) => {
         console.log(res.data);
         that.baifenbi = res.data.data + "%";
       });
     },
     search() {
+      var that = this;
+      let startCreateTime;
+      let endCreateTime;
+      if (that.searchTime.length !== 0) {
+        startCreateTime = this.formatDate(
+          that.searchTime[0],
+          "yyyy-MM-dd HH:mm:ss"
+        );
+        endCreateTime = this.formatDate(
+          that.searchTime[1],
+          "yyyy-MM-dd HH:mm:ss"
+        );
+      }
       getclient_order({
         tradeNo: this.input1,
-        outTradeNo: this.input2
-      }).then(res => {
+        outTradeNo: this.input2,
+        originalTradeNo: this.originalTradeNo,
+        startCreateTime,
+        endCreateTime,
+        status:this.PayorderStatus,
+        current: 1, size: 30
+      }).then((res) => {
         this.tableData = res.data.data.records;
       });
     },
     handleClick(id) {
-      getcallback({ id }).then(res => {
+      getcallback({ id }).then((res) => {
         if (res.data.code == 200) {
           const h = this.$createElement;
           this.$notify({
             title: "获取成功",
-            message: h("i", { style: "color: teal" }, "获取成功")
+            message: h("i", { style: "color: teal" }, "获取成功"),
           });
         }
       });
@@ -277,7 +298,7 @@ export default {
         "d+": date.getDate(),
         "H+": date.getHours(),
         "m+": date.getMinutes(),
-        "s+": date.getSeconds()
+        "s+": date.getSeconds(),
       };
       for (let k in o) {
         if (new RegExp(`(${k})`).test(fmt)) {
@@ -289,8 +310,8 @@ export default {
         }
       }
       return fmt;
-    }
-  }
+    },
+  },
 };
 </script>
 <style lang="scss" scoped>

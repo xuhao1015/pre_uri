@@ -8,6 +8,7 @@ module.exports = {
     proxyTable: {
       "/pre": {
         target: "http://210.16.122.100:8888/pre", //后端接口地址
+      //  target: "http://192.168.2.149:8081", //后端接口地址
         changeOrigin: true, //是否跨域
         pathRewrite: {
           "^/pre": "/" //重写,

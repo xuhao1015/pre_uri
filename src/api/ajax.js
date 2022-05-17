@@ -146,3 +146,10 @@ export function uploadFile(formData,skuid) {
   })
 }
 
+
+export function batchDeleteCk(data) {
+  return request({
+    url: `/ck/batchDeleteCk?fileName=${data.fileName}&status=${data.status}`,
+    method: "get",
+  });
+}

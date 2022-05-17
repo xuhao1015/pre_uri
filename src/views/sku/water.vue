@@ -73,30 +73,33 @@ export default {
       tableData: [],
       pagetotol: "",
       value1: [
-        this.formatDate(new Date() - 3600 * 24 * 1000, "yyyy-MM-dd HH:mm:ss"),
-        this.formatDate(new Date(), "yyyy-MM-dd HH:mm:ss")
+        new Date(this.formatDate(new Date(), "yyyy-MM-dd"))-8*60*60*1000,
+        new Date()
       ]
     };
   },
   mounted() {
     this.ajax();
+    console.log((this.formatDate(new Date(), "yyyy-MM-dd")))
   },
   methods: {
     ajax() {
-      let [startTime, endTime] = this.value1;
-      getflowing_water({ startTime, endTime }).then(res => {
+    var that=this
+      getflowing_water({ startTime:that.formatDate(that.value1[0], "yyyy-MM-dd HH:mm:ss"),
+        endTime: that.formatDate(that.value1[1], "yyyy-MM-dd HH:mm:ss"),}).then(res => {
         console.log("water", res);
         this.tableData = res.data.data.records;
         this.pagetotol = res.data.data.total;
       });
     },
     changePage(val) {
-      let [startTime, endTime] = this.value1;
-      getflowing_water({ startTime, endTime }).then(res => {
+      var that=this
+      getflowing_water({ startTime:that.formatDate(that.value1[0], "yyyy-MM-dd HH:mm:ss"),
+        endTime: that.formatDate(that.value1[1], "yyyy-MM-dd HH:mm:ss"),}).then(res => {
         this.tableData = res.data.data.records;
       });
     },
-    formatDate(date, fmt) {
+  formatDate(date, fmt) {
       date = new Date(date);
       if (typeof fmt === "undefined") {
         fmt = "yyyy-MM-dd HH:mm:ss";
@@ -112,7 +115,7 @@ export default {
         "d+": date.getDate(),
         "H+": date.getHours(),
         "m+": date.getMinutes(),
-        "s+": date.getSeconds()
+        "s+": date.getSeconds(),
       };
       for (let k in o) {
         if (new RegExp(`(${k})`).test(fmt)) {
@@ -126,10 +129,10 @@ export default {
       return fmt;
     },
     search() {
-      let [startTime, endTime] = this.value1;
+      var that=this
       getflowing_water({
-        startTime: startTime,
-        endTime: endTime
+        startTime:that.formatDate(that.value1[0], "yyyy-MM-dd HH:mm:ss"),
+        endTime: that.formatDate(that.value1[1], "yyyy-MM-dd HH:mm:ss"),
       }).then(res => {
         this.tableData = res.data.data.records;
       });
