@@ -230,7 +230,25 @@ export default {
       });
     },
     changePage(val) {
-      getclient_order({ current: val, size: 30 }).then((res) => {
+      var that = this;
+      let startCreateTime;
+      let endCreateTime;
+      if (that.searchTime.length !== 0) {
+        startCreateTime = this.formatDate(
+          that.searchTime[0],
+          "yyyy-MM-dd HH:mm:ss"
+        );
+        endCreateTime = this.formatDate(
+          that.searchTime[1],
+          "yyyy-MM-dd HH:mm:ss"
+        );
+      }
+      getclient_order({ current: val, size: 30 ,tradeNo: this.input1,
+        outTradeNo: this.input2,
+        originalTradeNo: this.originalTradeNo,
+        startCreateTime,
+        endCreateTime,
+        status:this.PayorderStatus,}).then((res) => {
         this.tableData = res.data.data.records;
       });
     },
