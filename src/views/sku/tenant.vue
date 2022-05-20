@@ -55,13 +55,13 @@ export default {
   methods: {
     ajax() {
       getjd_tenant({ current: 1, size: 5 }).then(res => {
-        console.log("getjd_tenant", res);
+        // console.log("getjd_tenant", res);
         this.tableData = res.data.data.records;
         this.pagetotol = res.data.data.total;
       });
     },
     changePage(val) {
-      getjd_tenant({ current: val }).then(res => {
+      getjd_tenant({ current: val, size: 5 }).then(res => {
         this.tableData = res.data.data.records;
       });
     }

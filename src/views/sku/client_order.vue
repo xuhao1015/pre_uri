@@ -1,6 +1,7 @@
 <template>
   <div>
     <h1>客户订单管理</h1>
+    <el-button type="primary" @click="ajax">刷新当前页数据</el-button>
     <div style="margin-bottom: 30px">
       <el-input
         v-model="input1"
@@ -26,10 +27,15 @@
         end-placeholder="结束日期"
       >
       </el-date-picker>
-<!-- 0，失败，1待支付，2支付成功 -->
+      <!-- 0，失败，1待支付，2支付成功 -->
       <el-select v-model="PayorderStatus" placeholder="请选择">
         <el-option
-          v-for="item in [{name:'失败',val:0},{name:'待支付',val:1},{name:'支付成功',val:2},{name:'全部',val:null}]"
+          v-for="item in [
+            { name: '失败', val: 0 },
+            { name: '待支付', val: 1 },
+            { name: '支付成功', val: 2 },
+            { name: '全部', val: null }
+          ]"
           :key="item.val"
           :label="item.name"
           :value="item.val"
@@ -52,24 +58,12 @@
       style="width: 100%"
       fit="true"
     >
-      <!-- <el-table-column fixed label="创建时间" width="180">
-        <template slot-scope="scope">
-          <span>{{
-            scope.row.createTime | FormatDate("yyyy-MM-dd HH:mm:ss")
-          }}</span>
-        </template>
-      </el-table-column> -->
-      <!-- <el-table-column prop="config" label="config" width="400">
-      </el-table-column> -->
       <el-table-column label="订单支付详情" show-overflow-tooltip>
         <template slot-scope="scope">
           <el-button @click="showModal(scope.row.html)">查看</el-button>
         </template>
       </el-table-column>
-      <!-- <el-table-column prop="subject" label="商品"> </el-table-column> -->
       <el-table-column prop="tradeNo" label="订单号"> </el-table-column>
-      <!-- <el-table-column prop="skuName" label="商品名称" show-overflow-tooltip> -->
-      <!-- </el-table-column> -->
       <el-table-column prop="amount" label="订单金额"> </el-table-column>
       <el-table-column prop="outTradeNo" label="外部订单号"> </el-table-column>
       <el-table-column prop="originalTradeNo" label="JD订单号">
@@ -83,23 +77,15 @@
         </template>
       </el-table-column>
       <el-table-column prop="matchTime" label="匹配时间(s)"> </el-table-column>
-      <!-- <el-table-column prop="payUrl" label="支付链接" show-overflow-tooltip>
-      </el-table-column> -->
-
-      <!-- <el-table-column prop="failTime" label="失败次数"> </el-table-column> -->
-      <el-table-column
-        
-        label="用户请求头"
-     
-      >
-      <template slot-scope="{row}">
-          {{row.userAgent && row.userAgent.match(/android/i)?'Android':'IOS'}}
+      <el-table-column label="用户请求头">
+        <template slot-scope="{ row }">
+          {{
+            row.userAgent && row.userAgent.match(/android/i) ? "Android" : "IOS"
+          }}
         </template>
       </el-table-column>
       <el-table-column prop="userIp" label="用户请求IP"> </el-table-column>
       <el-table-column prop="cardNumber" label="卡号"> </el-table-column>
-      <!-- <el-table-column prop="carMy" label="卡密"> </el-table-column> -->
-      <!-- <el-table-column prop="money" label="价格"> </el-table-column> -->
       <el-table-column
         prop="orderStatus"
         label="订单状态"
@@ -119,8 +105,6 @@
           <span>{{ scope.row.notifySucc == 1 ? "成功" : "失败" }}</span>
         </template>
       </el-table-column>
-
-      <!-- <el-table-column prop="ptId" label="" width="400"> </el-table-column> -->
       <el-table-column fixed="right" label="操作" width="100">
         <template slot-scope="scope">
           <el-button @click="handleClick(scope.row.id)" type="text" size="small"
@@ -135,6 +119,7 @@
         layout="prev, pager, next"
         @current-change="changePage"
         :total="pagetotol"
+        :current-page="currentPage"
         page-size="30"
       >
       </el-pagination>
@@ -162,12 +147,6 @@
       :before-close="handleClose"
     >
       <div id="Modal"></div>
-      <!-- <span slot="footer" class="dialog-footer">
-        <el-button @click="dialogVisible = false">取 消</el-button>
-        <el-button type="primary" @click="dialogVisible = false"
-          >确 定</el-button
-        >
-      </span> -->
     </el-dialog>
   </div>
 </template>
@@ -177,13 +156,14 @@ import {
   getclient_order,
   getcallback,
   getbaifenbi,
-  outKm,
+  outKm
 } from "../../api/ajax";
 export default {
   data() {
     return {
       tableData: [],
       pagetotol: "",
+      currentPage: "1",
       input1: "",
       input2: "",
       baifenbi: "",
@@ -192,13 +172,11 @@ export default {
       dialogVisible: false, //dialog弹窗
       originalTradeNo: "",
       searchTime: [],
-      PayorderStatus:null
-      // dataHtml: null
+      PayorderStatus: null
     };
   },
   mounted() {
     this.ajax();
-    // console.log();
   },
   methods: {
     // 展示HTML
@@ -211,26 +189,25 @@ export default {
     },
     handleClose(done) {
       done();
-      // this.$confirm("确认关闭？")
-      //   .then(_ => {
-      //     done();
-      //   })
-      //   .catch(_ => {});
     },
     // 下载
     outkami() {
-      // console.log('sraer',)
-      window.location.href = `http://${window.location.hostname}:8888/pre/ck/upload/uploadMy?carMy=${this.outkami_input}`;
+      window.location.href = `http://${
+        window.location.hostname
+      }:8888/pre/ck/upload/uploadMy?carMy=${this.outkami_input}`;
     },
     ajax() {
-      getclient_order({ current: 1, size: 30 }).then((res) => {
-        console.log("getclient_order", res);
-        this.tableData = res.data.data.records;
-        this.pagetotol = res.data.data.total;
+      var that = this;
+      getclient_order({ current: that.currentPage, size: 30 }).then(res => {
+        that.tableData = res.data.data.records;
+        that.pagetotol = res.data.data.total;
+        that.currentPage = res.data.data.current;
+        console.log("curr=", that.currentPage);
       });
     },
     changePage(val) {
       var that = this;
+      that.currentPage = val;
       let startCreateTime;
       let endCreateTime;
       if (that.searchTime.length !== 0) {
@@ -243,28 +220,33 @@ export default {
           "yyyy-MM-dd HH:mm:ss"
         );
       }
-      getclient_order({ current: val, size: 30 ,tradeNo: this.input1,
+      getclient_order({
+        current: val,
+        size: 30,
+        tradeNo: this.input1,
         outTradeNo: this.input2,
         originalTradeNo: this.originalTradeNo,
         startCreateTime,
         endCreateTime,
-        status:this.PayorderStatus,}).then((res) => {
+        status: this.PayorderStatus
+      }).then(res => {
         this.tableData = res.data.data.records;
       });
     },
+    // 成功概率查询
     chaxun() {
-      console.log("time=", this.value1);
       var that = this;
       getbaifenbi(
         this.formatDate(this.value1[0], "yyyy-MM-dd HH:mm:ss"),
         this.formatDate(this.value1[1], "yyyy-MM-dd HH:mm:ss")
-      ).then((res) => {
-        console.log(res.data);
-        that.baifenbi = res.data.data + "%";
+      ).then(res => {
+        that.baifenbi = res.data.data * 100 + "%";
       });
     },
+    // 条件查询
     search() {
       var that = this;
+      that.currentPage = "1";
       let startCreateTime;
       let endCreateTime;
       if (that.searchTime.length !== 0) {
@@ -283,19 +265,20 @@ export default {
         originalTradeNo: this.originalTradeNo,
         startCreateTime,
         endCreateTime,
-        status:this.PayorderStatus,
-        current: 1, size: 30
-      }).then((res) => {
+        status: this.PayorderStatus,
+        current: that.currentPage,
+        size: 30
+      }).then(res => {
         this.tableData = res.data.data.records;
       });
     },
     handleClick(id) {
-      getcallback({ id }).then((res) => {
+      getcallback({ id }).then(res => {
         if (res.data.code == 200) {
           const h = this.$createElement;
           this.$notify({
             title: "获取成功",
-            message: h("i", { style: "color: teal" }, "获取成功"),
+            message: h("i", { style: "color: teal" }, "获取成功")
           });
         }
       });
@@ -316,7 +299,7 @@ export default {
         "d+": date.getDate(),
         "H+": date.getHours(),
         "m+": date.getMinutes(),
-        "s+": date.getSeconds(),
+        "s+": date.getSeconds()
       };
       for (let k in o) {
         if (new RegExp(`(${k})`).test(fmt)) {
@@ -328,8 +311,8 @@ export default {
         }
       }
       return fmt;
-    },
-  },
+    }
+  }
 };
 </script>
 <style lang="scss" scoped>

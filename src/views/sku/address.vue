@@ -63,14 +63,14 @@ export default {
   methods: {
     ajax() {
       getAddress({ current: 1, size: 5 }).then(res => {
-        console.log(res);
+        // console.log(res);
         this.tableData = res.data.data.records;
         this.pagetotol = res.data.data.total;
       });
     },
     changePage(val) {
       //   console.log(val);
-      getAddress({ current: val }).then(res => {
+      getAddress({ current: val, size: 5 }).then(res => {
         // console.log(res);
         this.tableData = res.data.data.records;
       });

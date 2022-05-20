@@ -77,7 +77,7 @@ export default {
     },
     changePage(val) {
       //   console.log(val);
-      searchskuList({ current: val }).then(res => {
+      searchskuList({ current: val, size: 5 }).then(res => {
         // console.log(res);
         this.tableData = res.data.data.records;
       });

@@ -69,7 +69,7 @@ export default {
   methods: {
     ajax() {
       getip({ current: 1, size: 5 }).then(res => {
-        console.log("usetime", res);
+        // console.log("usetime", res);
         this.tableData = res.data.data.records;
         this.pagetotol = res.data.data.total;
         // Math.ceil(res.data.data.totol / 5);
@@ -77,7 +77,7 @@ export default {
     },
     changePage(val) {
       //   console.log(val);
-      getip({ current: val }).then(res => {
+      getip({ current: val, size: 5 }).then(res => {
         // console.log(res);
         this.tableData = res.data.data.records;
       });

@@ -53,14 +53,14 @@ export default {
   methods: {
     ajax() {
       getdaili({ current: 1, size: 5 }).then(res => {
-        console.log("daili", res);
+        // console.log("daili", res);
         this.tableData = res.data.data.records;
         this.pagetotol = res.data.data.total;
       });
     },
     changePage(val) {
       //   console.log(val);
-      getdaili({ current: val }).then(res => {
+      getdaili({ current: val, size: 5 }).then(res => {
         // console.log(res);
         this.tableData = res.data.data.records;
       });

@@ -34,10 +34,15 @@
     <h1>条件查找</h1>
     <el-input
       style="width: 25%; margin-bottom: 20px; margin-left: 20px"
-      v-model="input"
+      v-model="Search.ptPin"
       placeholder="请输入pt"
-    ></el-input
-    ><el-button style="margin-left: 20px" type="primary" @click="onSearch"
+    ></el-input>
+    <el-input
+      style="width: 25%; margin-bottom: 20px; margin-left: 20px"
+      v-model="Search.fileName"
+      placeholder="请输入文件名"
+    />
+    <el-button style="margin-left: 20px" type="primary" @click="onSearch"
       >查找</el-button
     >
     <h2>批量禁用或启用</h2>
@@ -48,14 +53,20 @@
     />
     <el-select v-model="filestatus" placeholder="请选择">
       <el-option
-        v-for="item in [{name:'启用',status:1},{name:'禁用',status:0}]"
+        v-for="item in [
+          { name: '启用', status: 1 },
+          { name: '禁用', status: 0 }
+        ]"
         :key="item.status"
         :label="item.name"
         :value="item.status"
       >
       </el-option>
     </el-select>
-    <el-button style="margin-left: 20px" type="primary" @click="DisbatchDeleteCk"
+    <el-button
+      style="margin-left: 20px"
+      type="primary"
+      @click="DisbatchDeleteCk"
       >批量禁用或启用</el-button
     >
     <el-table
@@ -89,21 +100,8 @@
       </el-table-column>
       <el-table-column prop="ptPin" label="jd账号" width="120">
       </el-table-column>
-      <!-- <el-table-column label="updateTime" width="120">
-        <template slot-scope="scope">
-          <span>{{ scope.row.updateTime | FormatDate("yyyy-MM-dd") }}</span>
-        </template>
-      </el-table-column> -->
       <el-table-column prop="failTime" label="失败次数" width="120">
       </el-table-column>
-      <!-- <el-table-column fixed="right" label="操作" width="100">
-        <template slot-scope="scope">
-          <el-button @click="handleClick(scope.row)" type="text" size="small"
-            >查看</el-button
-          >
-          <el-button type="text" size="small">编辑</el-button>
-        </template>
-      </el-table-column> -->
     </el-table>
     <div class="pagination-flex">
       <el-pagination
@@ -124,54 +122,54 @@ import {
   getckList,
   searchCkList,
   uploadFile,
-  batchDeleteCk,
+  batchDeleteCk
 } from "../../api/ajax";
 // axios.defaults.baseURL = '192.168.2.149:8081'; //  请求服务器具体的地址
 axios.defaults.headers["Content-Type"] = "application/json;charset=utf-8";
 axios.defaults.withCredentials = true; //  在跨域中允许携带凭证
 export default {
   methods: {
-    handleClick(row) {
-      //   console.log(row);
-    },
     // 批量警用
     DisbatchDeleteCk() {
-      console.log(!!this.filestatus,!!this.filename)
-      if(!this.filename){
-        return this.$message.error('必填文件名和状态')
+      // console.log(!!this.filestatus, !!this.filename);
+      if (!this.filename) {
+        return this.$message.error("必填文件名和状态");
       }
-      batchDeleteCk({fileName:this.filename,status:this.filestatus}).then(res=>{
-        console.log('dis',res)
-      });
+      batchDeleteCk({ fileName: this.filename, status: this.filestatus }).then(
+        res => {
+          console.log("dis", res);
+        }
+      );
     },
     ajax() {
-      getckList({ current: 1, size: 5 }).then((res) => {
-        // console.log(res.data.data.records);
+      getckList({ current: 1, size: 5 }).then(res => {
         this.tableData = res.data.data.records;
         this.pagetotol = res.data.data.total;
       });
     },
     // 根据pt那啥查询
     onSearch() {
-      let params = this.input;
-      //   console.log("search", params);
-      searchCkList({ ptPin: "pt_pin=jd_JSwOTgjqxAcT" }).then((res) => {
-        // console.log(res);
+      //  "pt_pin=jd_JSwOTgjqxAcT"
+      // fileName 查询有问题
+      var that = this;
+      searchCkList({
+        current: 1,
+        size: 5,
+        ...that.Search
+      }).then(res => {
         this.tableData = res.data.data.records;
       });
     },
     changePage(val) {
-      //   console.log(val);
-      searchCkList({ current: val }).then((res) => {
-        // console.log(res);
+      var that = this;
+      searchCkList({ current: val, size: 5, ...that.Search }).then(res => {
         this.tableData = res.data.data.records;
       });
     },
 
-
     uploadSectionFile(file) {
       this.loading = true;
-      console.log("file==", file, this.filelist);
+      // console.log("file==", file, this.filelist);
       var that = this;
       let fd = new FormData();
       if (this.input_skuid == "") {
@@ -182,7 +180,7 @@ export default {
         fd.append("file", file.file); //传⽂件
         console.log("aaaa=", fd);
         // fd.append('srid',this.aqForm.srid);//传其他参数
-        uploadFile(fd, that.input_skuid).then((res) => {
+        uploadFile(fd, that.input_skuid).then(res => {
           console.log("res=", res);
           if (res.data.code == 200) {
             this.loading = false;
@@ -190,15 +188,22 @@ export default {
           }
         });
       }
-    },
+    }
   },
   mounted() {
     this.ajax();
   },
   data() {
     return {
+      // 查询条件
+      Search: {
+        ptPin: "",
+        fileName: ""
+      },
+
+      // 查询条件
       tableData: [],
-      input: "",
+
       headers: { "content-type": "multipart/form-data" },
       filelist: [],
       pagetotol: "",
@@ -207,12 +212,13 @@ export default {
       loading: false,
       options: [
         { mz: "App Store 充值卡 100元", skuid: "11183343342" },
-        { mz: "App Store 充值卡 200元", skuid: "11183368356" },
+        { mz: "App Store 充值卡 200元", skuid: "11183368356" }
       ],
-      filestatus:0,
-      filename:''
+      // 批量禁用或启用
+      filestatus: 0,
+      filename: ""
     };
-  },
+  }
 };
 </script>
 <style lang="scss" scoped>
