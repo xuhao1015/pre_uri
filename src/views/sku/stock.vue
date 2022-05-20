@@ -12,6 +12,9 @@
       <el-table-column fixed prop="skuName" label="商品名称"> </el-table-column>
       <el-table-column prop="skuId" label="商品sku"> </el-table-column>
       <el-table-column prop="stock" label="已有库存"> </el-table-column>
+       <el-table-column prop="realTimeStock" label="真实有效库存"> </el-table-column>
+        <el-table-column prop="lockStock" label="锁定库存"> </el-table-column>
+         <el-table-column prop="surplusStock" label="能匹配库存"> </el-table-column>
       <el-table-column prop="productStock" label="正在生产数量" width="120">
       </el-table-column>
     </el-table>
