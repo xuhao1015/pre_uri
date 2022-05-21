@@ -46,15 +46,16 @@
       </el-table-column>
     </el-table> -->
     <div class="lsecharts">
-      <div id="e1" style="width: 33.3%; height: 500px"></div>
-      <div id="e2" style="width: 33.3%; height: 500px"></div>
-      <div id="e3" style="width: 33.3%; height: 500px"></div>
+      <div id="e1" ></div>
+      <div id="e2" ></div>
+      <div id="e3" ></div>
+      <div id="e4" ></div>
     </div>
   </div>
 </template>
 
 <script>
-import { getflowing_water } from "../../api/ajax";
+import { getflowing_water,getbaifenbi } from "../../api/ajax";
 import * as echarts from "echarts";
 
 export default {
@@ -67,6 +68,7 @@ export default {
           8 * 60 * 60 * 1000,
         new Date(),
       ],
+      cgl:''
     };
   },
   mounted() {
@@ -91,12 +93,12 @@ export default {
         },
         series: [
           {
-            name: "Access From",
+            name: "",
             type: "pie",
             radius: "50%",
             data: [
               {
-                value: that.tableData[0].createOrderNums,
+                value: that.tableData[0].createOrderNums-that.tableData[0].successOrderNums,
                 name: "创建订单量",
                 itemStyle: { color: "#006699" },
               },
@@ -138,12 +140,12 @@ export default {
         },
         series: [
           {
-            name: "Access From",
+            name: "",
             type: "pie",
             radius: "50%",
             data: [
               {
-                value: that.tableData[0].totalFlowingWater,
+                value: that.tableData[0].totalFlowingWater-that.tableData[0].successFlowingWater,
                 name: "总流水",
                 itemStyle: { color: "#006699" },
               },
@@ -185,12 +187,12 @@ export default {
         },
         series: [
           {
-            name: "Access From",
+            name: "",
             type: "pie",
             radius: "50%",
             data: [
               {
-                value: that.tableData[0].totalFlowingWater,
+                value: that.tableData[0].totalFlowingWater-that.tableData[0].noMatchFlowingWater,
                 name: "总流水",
                 itemStyle: { color: "#006699" },
               },
@@ -215,6 +217,53 @@ export default {
 
       option && myChart.setOption(option);
     },
+    echarts4() {
+      var that = this;
+      var myChart = echarts.init(document.getElementById("e4"));
+      var option = {
+        title: {
+          text: "成功率统计",
+          left: "center",
+        },
+        tooltip: {
+          trigger: "item",
+        },
+        legend: {
+          orient: "vertical",
+          left: "left",
+        },
+        series: [
+          {
+            name: "",
+            type: "pie",
+            radius: "50%",
+            data: [
+              {
+                value: 100-that.cgl,
+                name: "总数",
+                itemStyle: { color: "#006699" },
+              },
+              {
+                value: that.cgl,
+                name: "成功数",
+                itemStyle: { color: "#ff4d4f" },
+              },
+            ],
+            itemStyle: {
+              normal: {
+                label: {
+                  show: true,
+                  formatter: " ({d}%)", //展示的文字   类型+百分比
+                },
+                labelLine: { show: true },
+              },
+            },
+          },
+        ],
+      };
+
+      option && myChart.setOption(option);
+    },
     ajax() {
       var that = this;
       getflowing_water({
@@ -228,7 +277,17 @@ export default {
         that.echarts2();
         that.echarts3();
       });
+      // 成功概率查询
+       getbaifenbi(
+        that.formatDate(that.value1[0], "yyyy-MM-dd HH:mm:ss"),
+       that.formatDate(that.value1[1], "yyyy-MM-dd HH:mm:ss"),
+      ).then(res => {
+        that.cgl = res.data.data * 100;
+        that.echarts4()
+      });
     },
+    
+
     changePage(val) {
       var that = this;
       getflowing_water({
@@ -278,6 +337,14 @@ export default {
         that.echarts2();
         that.echarts3();
       });
+      // 成功概率查询
+       getbaifenbi(
+        that.formatDate(that.value1[0], "yyyy-MM-dd HH:mm:ss"),
+       that.formatDate(that.value1[1], "yyyy-MM-dd HH:mm:ss"),
+      ).then(res => {
+        that.cgl = res.data.data * 100;
+        that.echarts4()
+      });
     },
   },
 };
@@ -292,8 +359,14 @@ export default {
 }
 .lsecharts {
   display: flex;
-  width: 100%;
-  justify-content: space-around;
-  // background-color: #fff;
+  justify-content: flex-start;
+  flex-wrap: wrap;
+  >div{
+    height: 500px;
+    width: 25%;
+    @media screen and (max-width:750px) {
+      width: 100%;
+    }
+  }
 }
 </style>
