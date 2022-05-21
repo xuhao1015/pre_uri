@@ -1,145 +1,299 @@
+
 <template>
-  <div class="wel-contailer">
-    <div class="banner-text">
-      <div style="text-align: center;">
-        <img
-          src="https://gitee.com/li_haodong/picture_management/raw/master/pic/WechatIMG9.png"
-          height="256"
-          width="256"
-          alt="pre系统logo"
-        />
-      </div>
-      <span>
-        <a href="https://gitee.com/li_haodong/pre" target="_blank">
-          <img
-            src="https://img.shields.io/badge/Pre-1.1-green.svg"
-            alt="Build Status"
-          />
-        </a>
-        <img
-          src="https://img.shields.io/badge/spring--boot-2.1.6.RELEASE-green.svg"
-          alt="spring-boot"
-        />
-        <img
-          src="https://img.shields.io/badge/security-5.1.5-blue.svg"
-          alt="security"
-        />
-        <img
-          src="https://img.shields.io/badge/mybatis--plus-3.1.2-blue.svg"
-          alt="mybatis-plus"
-        />
-      </span>
-      <br />
-      <span>
-        <el-collapse v-model="activeNames">
-          <el-collapse-item title="Pre RBAC权限管理系统" name="1">
-            <div>基于Spring Boot 2.1.6.RELEASE</div>
-            <div>基于Spring Security 5.1.5</div>
-          </el-collapse-item>
-          <el-collapse-item title="Pre 完美的容器化支持" name="2">
-            <div>支持docker部署</div>
-          </el-collapse-item>
-          <el-collapse-item title="Pre 完美解决前后分离第三方登录" name="3">
-            <div>支持第三方社交登录</div>
-          </el-collapse-item>
-          <el-collapse-item title="Pre 项目特点" name="4">
-            <div>前后端分离架构</div>
-            <div>Jwt Token 鉴权机制</div>
-            <div>代码注释丰富，极其简洁风格，上手快易理解</div>
-            <div>采用Restfull API 规范开发</div>
-            <div>统一异常拦截，友好的错误提示</div>
-            <div>基于注解 + Aop切面实现全方位日记记录系统</div>
-            <div>基于Mybatis拦截器 + 策略模式实现数据权限控制</div>
-          </el-collapse-item>
-          <el-collapse-item title="基本功能" name="4">
-            <div>
-              用户管理 、角色管理 、角色管理 、菜单管理 、部门管理
-              、社交账号管理
-            </div>
-            <div>岗位管理 、字典管理 、操作日志 、异常日志 、代码生成</div>
-            <div>
-              <a href="https://gitee.com/li_haodong/pre" target="_blank"
-                >详细介绍Pre
-              </a>
-            </div>
-          </el-collapse-item>
-        </el-collapse>
-      </span>
+  <!-- // water -->
+  <div>
+    <h1>流水订单统计</h1>
+    <div class="block" style="margin-bottom: 30px">
+      <span class="demonstration">时间选择:</span>
+      <el-date-picker
+        v-model="value1"
+        type="datetimerange"
+        range-separator="至"
+        start-placeholder="开始日期"
+        end-placeholder="结束日期"
+      >
+      </el-date-picker>
+      <el-button type="primary" @click="search">查找</el-button>
+    </div>
+    <!-- <el-table
+      :data="tableData"
+      border
+      :row-key="tableData.id"
+      style="width: 100%"
+      fit="true"
+    >
+      <el-table-column fixed prop="createOrderNums" label="创建订单量">
+      </el-table-column>
+      <el-table-column prop="successOrderNums" label="成功订单">
+      </el-table-column>
+      <el-table-column prop="totalFlowingWater" label="总流水">
+      </el-table-column>
+      <el-table-column prop="successFlowingWater" label="成功流水">
+      </el-table-column>
+      <el-table-column
+        prop="failFlowingWater"
+        label="failFlowingWater"
+        width="120"
+      >
+      </el-table-column>
+      <el-table-column
+        prop="noMatchFlowingWater"
+        label="没有匹配流水"
+        width="120"
+      >
+      </el-table-column>
+      <el-table-column prop="successRate" label="successRate" width="120">
+      </el-table-column>
+    </el-table> -->
+    <div class="lsecharts">
+      <div id="e1" style="width: 33.3%; height: 500px"></div>
+      <div id="e2" style="width: 33.3%; height: 500px"></div>
+      <div id="e3" style="width: 33.3%; height: 500px"></div>
     </div>
   </div>
 </template>
 
 <script>
-import { formatData, getUrlKey } from "@/utils/webUtils";
+import { getflowing_water } from "../../api/ajax";
+import * as echarts from "echarts";
+
 export default {
-  name: "Index",
   data() {
     return {
-      activeNames: ["1", "2", "3", "4"],
-      DATA: [],
-      text: "",
-      actor: "",
-      count: 0,
-      isText: false
+      tableData: [],
+      pagetotol: "",
+      value1: [
+        new Date(this.formatDate(new Date(), "yyyy-MM-dd")) -
+          8 * 60 * 60 * 1000,
+        new Date(),
+      ],
     };
   },
-
-  methods: {},
   mounted() {
-    let token = getUrlKey("token");
-    console.log("token", token);
-  }
+    this.ajax();
+    console.log(this.formatDate(new Date(), "yyyy-MM-dd"));
+  },
+  methods: {
+    echarts() {
+      var that = this;
+      var myChart = echarts.init(document.getElementById("e1"));
+      var option = {
+        title: {
+          text: "订单统计",
+          left: "center",
+        },
+        tooltip: {
+          trigger: "item",
+        },
+        legend: {
+          orient: "vertical",
+          left: "left",
+        },
+        series: [
+          {
+            name: "Access From",
+            type: "pie",
+            radius: "50%",
+            data: [
+              {
+                value: that.tableData[0].createOrderNums,
+                name: "创建订单量",
+                itemStyle: { color: "#006699" },
+              },
+              {
+                value: that.tableData[0].successOrderNums,
+                name: "成功订单",
+                itemStyle: { color: "#00ccff" },
+              },
+            ],
+            itemStyle: {
+              normal: {
+                label: {
+                  show: true,
+                  formatter: "{b} : {c} ({d}%)", //展示的文字   类型+百分比
+                },
+                labelLine: { show: true },
+              },
+            },
+          },
+        ],
+      };
+
+      option && myChart.setOption(option);
+    },
+    echarts2() {
+      var that = this;
+      var myChart = echarts.init(document.getElementById("e2"));
+      var option = {
+        title: {
+          text: "流水统计",
+          left: "center",
+        },
+        tooltip: {
+          trigger: "item",
+        },
+        legend: {
+          orient: "vertical",
+          left: "left",
+        },
+        series: [
+          {
+            name: "Access From",
+            type: "pie",
+            radius: "50%",
+            data: [
+              {
+                value: that.tableData[0].totalFlowingWater,
+                name: "总流水",
+                itemStyle: { color: "#006699" },
+              },
+              {
+                value: that.tableData[0].successFlowingWater,
+                name: "成功流水",
+                itemStyle: { color: "#00ccff" },
+              },
+            ],
+            itemStyle: {
+              normal: {
+                label: {
+                  show: true,
+                  formatter: "{b} : {c} ({d}%)", //展示的文字   类型+百分比
+                },
+                labelLine: { show: true },
+              },
+            },
+          },
+        ],
+      };
+
+      option && myChart.setOption(option);
+    },
+    echarts3() {
+      var that = this;
+      var myChart = echarts.init(document.getElementById("e3"));
+      var option = {
+        title: {
+          text: "流水匹配统计",
+          left: "center",
+        },
+        tooltip: {
+          trigger: "item",
+        },
+        legend: {
+          orient: "vertical",
+          left: "left",
+        },
+        series: [
+          {
+            name: "Access From",
+            type: "pie",
+            radius: "50%",
+            data: [
+              {
+                value: that.tableData[0].totalFlowingWater,
+                name: "总流水",
+                itemStyle: { color: "#006699" },
+              },
+              {
+                value: that.tableData[0].noMatchFlowingWater,
+                name: "没有匹配流水",
+                itemStyle: { color: "#ff4d4f" },
+              },
+            ],
+            itemStyle: {
+              normal: {
+                label: {
+                  show: true,
+                  formatter: "{b} : {c} ({d}%)", //展示的文字   类型+百分比
+                },
+                labelLine: { show: true },
+              },
+            },
+          },
+        ],
+      };
+
+      option && myChart.setOption(option);
+    },
+    ajax() {
+      var that = this;
+      getflowing_water({
+        startTime: that.formatDate(that.value1[0], "yyyy-MM-dd HH:mm:ss"),
+        endTime: that.formatDate(that.value1[1], "yyyy-MM-dd HH:mm:ss"),
+      }).then((res) => {
+        console.log("water", res);
+        that.tableData = res.data.data.records;
+        that.pagetotol = res.data.data.total;
+        that.echarts();
+        that.echarts2();
+        that.echarts3();
+      });
+    },
+    changePage(val) {
+      var that = this;
+      getflowing_water({
+        startTime: that.formatDate(that.value1[0], "yyyy-MM-dd HH:mm:ss"),
+        endTime: that.formatDate(that.value1[1], "yyyy-MM-dd HH:mm:ss"),
+      }).then((res) => {
+        this.tableData = res.data.data.records;
+      });
+    },
+    formatDate(date, fmt) {
+      date = new Date(date);
+      if (typeof fmt === "undefined") {
+        fmt = "yyyy-MM-dd HH:mm:ss";
+      }
+      if (/(y+)/.test(fmt)) {
+        fmt = fmt.replace(
+          RegExp.$1,
+          (date.getFullYear() + "").substr(4 - RegExp.$1.length)
+        );
+      }
+      let o = {
+        "M+": date.getMonth() + 1,
+        "d+": date.getDate(),
+        "H+": date.getHours(),
+        "m+": date.getMinutes(),
+        "s+": date.getSeconds(),
+      };
+      for (let k in o) {
+        if (new RegExp(`(${k})`).test(fmt)) {
+          let str = o[k] + "";
+          fmt = fmt.replace(
+            RegExp.$1,
+            RegExp.$1.length === 1 ? str : ("00" + str).substr(str.length)
+          );
+        }
+      }
+      return fmt;
+    },
+    search() {
+      var that = this;
+      getflowing_water({
+        startTime: that.formatDate(that.value1[0], "yyyy-MM-dd HH:mm:ss"),
+        endTime: that.formatDate(that.value1[1], "yyyy-MM-dd HH:mm:ss"),
+      }).then((res) => {
+        that.tableData = res.data.data.records;
+        that.echarts();
+        that.echarts2();
+        that.echarts3();
+      });
+    },
+  },
 };
 </script>
-
-<style scoped="scoped" lang="scss">
-.wel-contailer {
-  position: relative;
+<style lang="scss" scoped>
+.pagination-flex {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 1rem;
+  background-color: #fff;
+  padding: 20px 40px;
 }
-
-.banner-text {
-  position: relative;
-  padding: 0 20px;
-  font-size: 20px;
-  text-align: center;
-  color: #333;
-}
-
-.banner-img {
-  position: absolute;
-  top: 0;
-  left: 0;
+.lsecharts {
+  display: flex;
   width: 100%;
-  height: 100%;
-  opacity: 0.8;
-  display: none;
-}
-
-.actor {
-  height: 250px;
-  overflow: hidden;
-  font-size: 18px;
-  color: #333;
-}
-
-.actor:after {
-  content: "";
-  width: 3px;
-  height: 25px;
-  vertical-align: -5px;
-  margin-left: 5px;
-  background-color: #333;
-  display: inline-block;
-  animation: blink 0.4s infinite alternate;
-}
-
-.typeing:after {
-  animation: none;
-}
-
-@keyframes blink {
-  to {
-    opacity: 0;
-  }
+  justify-content: space-around;
+  // background-color: #fff;
 }
 </style>
