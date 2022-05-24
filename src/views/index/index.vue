@@ -16,64 +16,48 @@
       <el-button type="primary" @click="search">查找</el-button>
     </div>
     <!-- <el-table
-      :data="tableData"
+      :data="source"
       border
       :row-key="tableData.id"
       style="width: 100%"
       fit="true"
     >
-      <el-table-column fixed prop="createOrderNums" label="创建订单量">
-      </el-table-column>
-      <el-table-column prop="successOrderNums" label="成功订单">
-      </el-table-column>
-      <el-table-column prop="totalFlowingWater" label="总流水">
-      </el-table-column>
-      <el-table-column prop="successFlowingWater" label="成功流水">
-      </el-table-column>
-      <el-table-column
-        prop="failFlowingWater"
-        label="failFlowingWater"
-        width="120"
-      >
-      </el-table-column>
-      <el-table-column
-        prop="noMatchFlowingWater"
-        label="没有匹配流水"
-        width="120"
-      >
-      </el-table-column>
-      <el-table-column prop="successRate" label="successRate" width="120">
-      </el-table-column>
+      <el-table-column fixed prop="fileName" label="文件名"> </el-table-column>
+      <el-table-column prop="num" label="数量"> </el-table-column>
+      <el-table-column prop="status" label="状态"> </el-table-column>
     </el-table> -->
     <div class="lsecharts">
-      <div id="e1" ></div>
-      <div id="e2" ></div>
-      <div id="e3" ></div>
-      <div id="e4" ></div>
+      <div id="e1"></div>
+      <div id="e2"></div>
+      <div id="e3"></div>
+      <div id="e4"></div>
+      <div id="e5"></div>
     </div>
   </div>
 </template>
 
 <script>
-import { getflowing_water,getbaifenbi } from "../../api/ajax";
+import { getflowing_water, getbaifenbi, getTK } from "../../api/ajax";
 import * as echarts from "echarts";
 
 export default {
   data() {
     return {
       tableData: [],
+      source: [],
       pagetotol: "",
       value1: [
         new Date(this.formatDate(new Date(), "yyyy-MM-dd")) -
           8 * 60 * 60 * 1000,
         new Date(),
       ],
-      cgl:''
+      cgl: "",
     };
   },
+
   mounted() {
     this.ajax();
-    console.log(this.formatDate(new Date(), "yyyy-MM-dd"));
+    // console.log(this.formatDate(new Date(), "yyyy-MM-dd"));
   },
   methods: {
     echarts() {
@@ -98,7 +82,9 @@ export default {
             radius: "50%",
             data: [
               {
-                value: that.tableData[0].createOrderNums-that.tableData[0].successOrderNums,
+                value:
+                  that.tableData[0].createOrderNums -
+                  that.tableData[0].successOrderNums,
                 name: "创建订单量",
                 itemStyle: { color: "#006699" },
               },
@@ -145,7 +131,9 @@ export default {
             radius: "50%",
             data: [
               {
-                value: that.tableData[0].totalFlowingWater-that.tableData[0].successFlowingWater,
+                value:
+                  that.tableData[0].totalFlowingWater -
+                  that.tableData[0].successFlowingWater,
                 name: "总流水",
                 itemStyle: { color: "#006699" },
               },
@@ -192,7 +180,9 @@ export default {
             radius: "50%",
             data: [
               {
-                value: that.tableData[0].totalFlowingWater-that.tableData[0].noMatchFlowingWater,
+                value:
+                  that.tableData[0].totalFlowingWater -
+                  that.tableData[0].noMatchFlowingWater,
                 name: "总流水",
                 itemStyle: { color: "#006699" },
               },
@@ -239,7 +229,7 @@ export default {
             radius: "50%",
             data: [
               {
-                value: 100-that.cgl,
+                value: 100 - that.cgl,
                 name: "总数",
                 itemStyle: { color: "#006699" },
               },
@@ -264,29 +254,66 @@ export default {
 
       option && myChart.setOption(option);
     },
+    echarts5() {
+      var that = this;
+      let arr=[]
+      console.log(that.source)
+      that.source.forEach((item)=>{
+        arr.push([item.fileName,item.refundNum==null?0:item.refundNum,,item.successNum==null?0:item.successNum])
+      })
+
+      var myChart = echarts.init(document.getElementById("e5"));
+      var option = {
+        legend: {},
+        tooltip: {},
+        dataset: {
+          source: arr
+        },
+        xAxis: { type: "category", axisLabel: {
+                fontSize:'22',
+                fontFamily:'微软雅黑',
+                marginTop:'35px',
+                show:true,
+            }, },
+        yAxis: {},
+        // Declare several bar series, each will be mapped
+        // to a column of dataset.source by default.
+        series: [{ type: "bar" }, { type: "bar" }, { type: "bar" }],
+      };
+
+      option && myChart.setOption(option);
+    },
+
     ajax() {
       var that = this;
       getflowing_water({
         startTime: that.formatDate(that.value1[0], "yyyy-MM-dd HH:mm:ss"),
         endTime: that.formatDate(that.value1[1], "yyyy-MM-dd HH:mm:ss"),
       }).then((res) => {
-        console.log("water", res);
+        // console.log("water", res);
         that.tableData = res.data.data.records;
-        that.pagetotol = res.data.data.total;
+
         that.echarts();
         that.echarts2();
         that.echarts3();
       });
       // 成功概率查询
-       getbaifenbi(
+      getbaifenbi(
         that.formatDate(that.value1[0], "yyyy-MM-dd HH:mm:ss"),
-       that.formatDate(that.value1[1], "yyyy-MM-dd HH:mm:ss"),
-      ).then(res => {
+        that.formatDate(that.value1[1], "yyyy-MM-dd HH:mm:ss")
+      ).then((res) => {
         that.cgl = res.data.data * 100;
-        that.echarts4()
+        that.echarts4();
+      });
+      getTK(
+        that.formatDate(that.value1[0], "yyyy-MM-dd HH:mm:ss"),
+        that.formatDate(that.value1[1], "yyyy-MM-dd HH:mm:ss")
+      ).then((res) => {
+        console.log(res);
+        that.source = res.data.data;
+        that.echarts5()
       });
     },
-    
 
     changePage(val) {
       var that = this;
@@ -338,12 +365,12 @@ export default {
         that.echarts3();
       });
       // 成功概率查询
-       getbaifenbi(
+      getbaifenbi(
         that.formatDate(that.value1[0], "yyyy-MM-dd HH:mm:ss"),
-       that.formatDate(that.value1[1], "yyyy-MM-dd HH:mm:ss"),
-      ).then(res => {
+        that.formatDate(that.value1[1], "yyyy-MM-dd HH:mm:ss")
+      ).then((res) => {
         that.cgl = res.data.data * 100;
-        that.echarts4()
+        that.echarts4();
       });
     },
   },
@@ -361,10 +388,13 @@ export default {
   display: flex;
   justify-content: flex-start;
   flex-wrap: wrap;
-  >div{
+  > div {
     height: 500px;
     width: 25%;
-    @media screen and (max-width:750px) {
+    &:last-child{
+      width: 100%;
+    }
+    @media screen and (max-width: 750px) {
       width: 100%;
     }
   }

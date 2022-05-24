@@ -153,3 +153,11 @@ export function batchDeleteCk(data) {
     method: "get",
   });
 }
+
+export function getTK(start,end) {
+  return request({
+    url: `/ck/refund?start=${start}&end=${end}`,
+    method: "get",
+    // params: params
+  });
+}
