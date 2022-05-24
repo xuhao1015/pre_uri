@@ -1,22 +1,27 @@
 <template>
   <div class="navbar">
-    <hamburger :toggle-click="toggleSideBar" :is-active="sidebar.opened" class="hamburger-container" />
+    <hamburger
+      :toggle-click="toggleSideBar"
+      :is-active="sidebar.opened"
+      class="hamburger-container"
+    />
     <breadcrumb class="breadcrumb-container" />
     <div class="right-menu">
-
-      <template v-if="device!=='mobile'">
+      <template v-if="device !== 'mobile'">
         <!--        <search id="header-search" class="right-menu-item" />-->
 
         <!--        <error-log class="errLog-container right-menu-item hover-effect" />-->
 
         <screenfull id="screenfull" class="right-menu-item hover-effect" />
-
       </template>
 
       <!--个人-->
-      <el-dropdown class="avatar-container right-menu-item hover-effect" trigger="click">
+      <el-dropdown
+        class="avatar-container right-menu-item hover-effect"
+        trigger="click"
+      >
         <div class="avatar-wrapper">
-          <img :src="avatar" class="user-avatar">
+          <img :src="avatar" class="user-avatar" />
           <i class="el-icon-caret-bottom" />
         </div>
         <el-dropdown-menu slot="dropdown">
@@ -43,10 +48,10 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
-import Breadcrumb from '@/components/Breadcrumb'
-import Hamburger from '@/components/Hamburger'
-import Screenfull from '@/components/Screenfull'
+import { mapGetters } from "vuex";
+import Breadcrumb from "@/components/Breadcrumb";
+import Hamburger from "@/components/Hamburger";
+import Screenfull from "@/components/Screenfull";
 
 export default {
   components: {
@@ -55,117 +60,114 @@ export default {
     Screenfull
   },
   computed: {
-    ...mapGetters([
-      'sidebar',
-      'name',
-      'device'
-    ])
+    ...mapGetters(["sidebar", "name", "device"])
   },
-  data(){
-    return{
-      avatar:"https://gimg2.baidu.com/image_search/src=http%3A%2F%2F5b0988e595225.cdn.sohucs.com%2Fimages%2F20200503%2Fd59a0aec155b4f21ac9ead2fd00d80e8.jpeg&refer=http%3A%2F%2F5b0988e595225.cdn.sohucs.com&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=auto?sec=1653052269&t=754800d3b801b3a213891a977bab7a67"
-    }
+  data() {
+    return {
+      avatar:
+        "https://gimg2.baidu.com/image_search/src=http%3A%2F%2F5b0988e595225.cdn.sohucs.com%2Fimages%2F20200503%2Fd59a0aec155b4f21ac9ead2fd00d80e8.jpeg&refer=http%3A%2F%2F5b0988e595225.cdn.sohucs.com&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=auto?sec=1653052269&t=754800d3b801b3a213891a977bab7a67"
+    };
   },
   methods: {
     setting() {
-      this.$store.commit('openSettingBar', true)
+      this.$store.commit("openSettingBar", true);
     },
     toggleSideBar() {
-      this.$store.dispatch('toggleSideBar')
+      this.$store.dispatch("toggleSideBar");
     },
 
     // 退出登录
     logout() {
-      this.$confirm('是否退出系统, 是否继续?', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
+      this.$confirm("是否退出系统, 是否继续?", "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning"
       }).then(() => {
-        this.$store.dispatch('LogOut').then(() => {
-          location.reload()
-        })
-      })
+        this.$store.dispatch("LogOut").then(() => {
+          location.reload();
+        });
+      });
     }
   }
-}
+};
 </script>
 
 <style rel="stylesheet/scss" lang="scss" scoped>
-  .navbar {
-    height: 50px;
-    overflow: hidden;
+.navbar {
+  height: 50px;
+  overflow: hidden;
 
-    .hamburger-container {
-      line-height: 46px;
-      height: 100%;
-      float: left;
-      cursor: pointer;
-      transition: background .3s;
+  .hamburger-container {
+    line-height: 46px;
+    height: 100%;
+    float: left;
+    cursor: pointer;
+    transition: background 0.3s;
 
-      &:hover {
-        background: rgba(0, 0, 0, .025)
-      }
+    &:hover {
+      background: rgba(0, 0, 0, 0.025);
+    }
+  }
+
+  .breadcrumb-container {
+    float: left;
+  }
+
+  .errLog-container {
+    display: inline-block;
+    vertical-align: top;
+  }
+
+  .right-menu {
+    float: right;
+    height: 100%;
+    line-height: 50px;
+
+    &:focus {
+      outline: none;
     }
 
-    .breadcrumb-container {
-      float: left;
-    }
-
-    .errLog-container {
+    .right-menu-item {
       display: inline-block;
-      vertical-align: top;
-    }
-
-    .right-menu {
-      float: right;
+      padding: 0 8px;
       height: 100%;
-      line-height: 50px;
+      font-size: 18px;
+      color: #5a5e66;
+      vertical-align: text-bottom;
 
-      &:focus {
-        outline: none;
-      }
+      &.hover-effect {
+        cursor: pointer;
+        transition: background 0.3s;
 
-      .right-menu-item {
-        display: inline-block;
-        padding: 0 8px;
-        height: 100%;
-        font-size: 18px;
-        color: #5a5e66;
-        vertical-align: text-bottom;
-
-        &.hover-effect {
-          cursor: pointer;
-          transition: background .3s;
-
-          &:hover {
-            background: rgba(0, 0, 0, .025)
-          }
+        &:hover {
+          background: rgba(0, 0, 0, 0.025);
         }
       }
+    }
 
-      .avatar-container {
-        margin-right: 30px;
+    .avatar-container {
+      margin-right: 30px;
 
-        .avatar-wrapper {
-          margin-top: 5px;
-          position: relative;
+      .avatar-wrapper {
+        margin-top: 5px;
+        position: relative;
 
-          .user-avatar {
-            cursor: pointer;
-            width: 40px;
-            height: 40px;
-            border-radius: 10px;
-          }
+        .user-avatar {
+          cursor: pointer;
+          width: 40px;
+          height: 40px;
+          border-radius: 10px;
+        }
 
-          .el-icon-caret-bottom {
-            cursor: pointer;
-            position: absolute;
-            right: -20px;
-            top: 25px;
-            font-size: 12px;
-          }
+        .el-icon-caret-bottom {
+          cursor: pointer;
+          position: absolute;
+          right: -20px;
+          top: 25px;
+          font-size: 12px;
         }
       }
     }
   }
+}
 </style>
