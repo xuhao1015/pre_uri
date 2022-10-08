@@ -66,7 +66,7 @@
       <el-table-column prop="tradeNo" label="订单号"> </el-table-column>
       <el-table-column prop="amount" label="订单金额"> </el-table-column>
       <el-table-column prop="outTradeNo" label="外部订单号"> </el-table-column>
-      <el-table-column prop="originalTradeNo" label="JD订单号">
+      <el-table-column prop="originalTradeNo" label="商城订单号">
       </el-table-column>
 
       <el-table-column prop="createTimeStr" label="订单创建时间">
@@ -85,9 +85,9 @@
         </template>
       </el-table-column>
       <el-table-column prop="userIp" label="用户请求IP"> </el-table-column>
-      <el-table-column prop="cardNumber" label="卡号"> </el-table-column>
+      <el-table-column prop="cardNumber" label="号码"> </el-table-column>
       <!-- orgAppCk -->
-      <el-table-column prop="orgAppCk" label="orgAppCk" show-overflow-tooltip="true"> </el-table-column>
+      <el-table-column prop="orgAppCk" label="状态" show-overflow-tooltip="true"> </el-table-column>
 
       <el-table-column
         prop="orderStatus"
