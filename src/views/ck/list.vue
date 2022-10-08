@@ -1,24 +1,12 @@
 <template>
   <div>
-    <h1>ck上传,必选skuid</h1>
+    <h1>ck上传</h1>
     <div class="updown">
-      <span>SKUID:</span>
-      <el-select v-model="input_skuid" placeholder="请输入skuid">
-        <el-option
-          v-for="(item, inde) in options"
-          :key="inde"
-          :label="item.mz"
-          :value="item.skuid"
-        >
-        </el-option>
-      </el-select>
-
       <el-upload
         class="upload"
         :multiple="true"
         :show-file-list="false"
         action="fakeAction"
-        drag
         :headers="headers"
         :file-list="filelist"
         :http-request="uploadSectionFile"
@@ -28,7 +16,7 @@
         :on-change="changeup"
       >
         <i class="el-icon-upload" />
-        <div class="el-upload__text">Drag或<em>点击上传</em></div>
+        <div class="el-upload__text"><em>点击上传</em></div>
       </el-upload>
     </div>
     <h1>条件查找</h1>
@@ -55,7 +43,7 @@
       <el-option
         v-for="item in [
           { name: '启用', status: 1 },
-          { name: '禁用', status: 0 }
+          { name: '禁用', status: 0 },
         ]"
         :key="item.status"
         :label="item.name"
@@ -122,73 +110,84 @@ import {
   getckList,
   searchCkList,
   uploadFile,
-  batchDeleteCk
+  batchDeleteCk,
 } from "../../api/ajax";
-// axios.defaults.baseURL = '192.168.2.149:8081'; //  请求服务器具体的地址
 axios.defaults.headers["Content-Type"] = "application/json;charset=utf-8";
 axios.defaults.withCredentials = true; //  在跨域中允许携带凭证
 export default {
   methods: {
     // 批量警用
     DisbatchDeleteCk() {
-      // console.log(!!this.filestatus, !!this.filename);
       if (!this.filename) {
         return this.$message.error("必填文件名和状态");
       }
       batchDeleteCk({ fileName: this.filename, status: this.filestatus }).then(
-        res => {
+        (res) => {
           console.log("dis", res);
         }
       );
     },
     ajax() {
-      getckList({ current: 1, size: 5 }).then(res => {
+      getckList({ current: 1, size: 5 }).then((res) => {
         this.tableData = res.data.data.records;
         this.pagetotol = res.data.data.total;
       });
     },
     // 根据pt那啥查询
     onSearch() {
-      //  "pt_pin=jd_JSwOTgjqxAcT"
-      // fileName 查询有问题
       var that = this;
       searchCkList({
         current: 1,
         size: 5,
-        ...that.Search
-      }).then(res => {
+        ...that.Search,
+      }).then((res) => {
         this.tableData = res.data.data.records;
       });
     },
     changePage(val) {
       var that = this;
-      searchCkList({ current: val, size: 5, ...that.Search }).then(res => {
+      searchCkList({ current: val, size: 5, ...that.Search }).then((res) => {
         this.tableData = res.data.data.records;
       });
     },
 
     uploadSectionFile(file) {
-      this.loading = true;
-      // console.log("file==", file, this.filelist);
       var that = this;
-      let fd = new FormData();
-      if (this.input_skuid == "") {
-        this.$message.error("skuid必选");
-        this.loading = false;
-        return;
-      } else {
+      if (this.file_get_result == null) {
+        that.loading = true;
+        let fd = new FormData();
         fd.append("file", file.file); //传⽂件
-        console.log("aaaa=", fd);
-        // fd.append('srid',this.aqForm.srid);//传其他参数
-        uploadFile(fd, that.input_skuid).then(res => {
-          console.log("res=", res);
+        uploadFile(fd, false).then((res) => {
           if (res.data.code == 200) {
-            this.loading = false;
-            this.$message.success("上传成功");
+            that.loading = false;
+            that.file_get_result = res.data.data.repeat;
+            this.$confirm(`重复数量:${this.file_get_result}`, "提示", {
+          confirmButtonText: "确定",
+          cancelButtonText: "取消",
+          type: "warning",
+        })
+          .then(() => {
+            that.loading = true;
+            let fd = new FormData();
+            fd.append("file", file.file); //传⽂件
+            uploadFile(fd, true).then((res) => {
+              if (res.data.code == 200) {
+                this.loading = false;
+                this.$message.success("上传成功");
+                this.file_get_result = null
+              }
+            });
+          })
+          .catch(() => {
+            this.$message({
+              type: "info",
+              message: "已取消上传",
+            });
+          });
           }
         });
       }
-    }
+    },
   },
   mounted() {
     this.ajax();
@@ -198,12 +197,11 @@ export default {
       // 查询条件
       Search: {
         ptPin: "",
-        fileName: ""
+        fileName: "",
       },
 
       // 查询条件
       tableData: [],
-
       headers: { "content-type": "multipart/form-data" },
       filelist: [],
       pagetotol: "",
@@ -212,13 +210,15 @@ export default {
       loading: false,
       options: [
         { mz: "App Store 充值卡 100元", skuid: "11183343342" },
-        { mz: "App Store 充值卡 200元", skuid: "11183368356" }
+        { mz: "App Store 充值卡 200元", skuid: "11183368356" },
       ],
       // 批量禁用或启用
       filestatus: 0,
-      filename: ""
+      filename: "",
+      // 重复字段
+      file_get_result: null,
     };
-  }
+  },
 };
 </script>
 <style lang="scss" scoped>

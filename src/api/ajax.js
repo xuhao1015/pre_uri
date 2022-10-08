@@ -134,9 +134,22 @@ export function outKm(carMy) {
   });
 }
 
-export function uploadFile(formData,skuid) {
+export function uploadFile(formData,isConfirm) {
   return request({
-    url: `/ck/checkList?skuId=${skuid}`,
+    url: `/ck/checkList?isConfirm=${isConfirm}`,
+    method: 'post',
+    data: formData,
+    isFormData: true,
+    headers: {
+      'Content-Type': 'multipartt/form-data'
+    }
+  })
+}
+
+
+export function uploadZhideng(formData,isConfirm) {
+  return request({
+    url: `/ck/uploadZhideng?isConfirm=${isConfirm}`,
     method: 'post',
     data: formData,
     isFormData: true,
@@ -154,10 +167,44 @@ export function batchDeleteCk(data) {
   });
 }
 
-export function getTK(start,end) {
+export function writeOffCodestatistics(start,end) {
   return request({
-    url: `/ck/refund?start=${start}&end=${end}`,
+    url: `/ck/writeOffCodestatistics?start=${start}&end=${end}`,
     method: "get",
     // params: params
+  });
+}
+export function getFileList(data) {
+  return request({
+    url: `/ck/zhidengByFileName`,
+    method: "get",
+    params: data
+  });
+}
+export function getALLFileName() {
+  return request({
+    url: `/ck/zhidengFileName`,
+    method: "get",
+  });
+}
+
+export function batchWriteOff(data) {
+  return request({
+    url: `/ck/batchWriteOff`,
+    method: "get",params: data
+  });
+}
+
+export function zhidengOffCode(data) {
+  return request({
+    url: `/ck/zhidengOffCode`,
+    method: "get",params: data
+  });
+}
+
+export function writeOffById(data) {
+  return request({
+    url: `/ck/writeOffById`,
+    method: "get",params: data
   });
 }

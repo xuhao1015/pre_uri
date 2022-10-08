@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.0.0/core.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.0.0/enc-base64.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.0.0/cipher-core.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.0.0/aes.min.js"></script>
+<script>
+
+function  hashParam (param, url) {
+                var rs = "";
+                var keyAry = [];
+                if (url && url.indexOf("?") != -1) {
+                    url = url.split("?")[1];
+                    if (url.indexOf("#") != -1)
+                        url = url.split("#")[0];
+                    var aryUrl = url.split("&");
+                    for (var i in aryUrl) {
+                        var arySplit = aryUrl[i].split("=");
+                        param[arySplit[0]] = arySplit[1] ? arySplit[1] : ""
+                    }
+                }
+                for (var i in param)
+                    keyAry.push(i);
+                keyAry = keyAry.sort();
+                for (var j in keyAry) {
+                    if (keyAry[j] == "api_key")
+                        continue;
+                    rs += "&" + keyAry[j] + "=" + (param[keyAry[j]] !== undefined && param[keyAry[j]] !== null ? param[keyAry[j]] : "")
+                }
+                if (rs.length > 0)
+                    rs = rs.substring(1);
+                // rs = this.sha1(rs);
+                return rs
+}
+
+ function getSecret(param) {
+                var rs = "";
+                var _this = this;
+                var enString = param.api_key && _this.data.enString[param.api_key] ? _this.data.enString[param.api_key] : "";
+                // return _this.aesDecrypt(enString, _this.data.secret)
+                return enString;
+ }
+
+var  param  = {
+    "app_name": "shop_wap",
+    "app_version": "4.0",
+    "api_key": "8cec5243ade04ed3a02c5972bcda0d3f",
+    "mobile_platform": "2",
+    "source_app": "yd_wap",
+    "warehouse": "VIP_CD",
+    "fdc_area_id": "105101101",
+    "province_id": "105101",
+    "mars_cid": "1658589393300_1d2da58767953dc0e149a93513499ef6",
+    "mobile_channel": "mobiles-||",
+    "standby_id": "nature",
+    "union_mark": "mobiles-nature||",
+    "productIds": "6919473850979693192,6919805800928474766,6919907273577961928,6919873654157521544,6919863530261992072,6919553427972827598,6919862177356657288,6919656617938367506,6919886990885356808,6919772202499736146,6919378011105216094,6919702951192470794,6919386875479365390,6919581227153234056,6919873654157513352,6919533377896487624,6919419955480150600,6919472555097588498,6919533377879685832,6919472555080803090",
+    "scene": "brand",
+    "extParams": "{\"preheatTipsVer\":\"3\",\"subjectId\":\"101340388\",\"brandId\":\"101340388\",\"couponVer\":\"v2\",\"ic2label\":\"1\",\"multiBrandStore\":\"1\",\"exclusivePrice\":\"1\",\"iconSpec\":\"3x\",\"wxk\":\"0\"}",
+    "context": "{\"615\":\"0\",\"872\":\"0\"}",
+    "priceScene": "future",
+    "_": 1658733851
+}
+let srcs = CryptoJS.enc.Base64.stringify("8cec5243ade04ed3a02c5972bcda0d3f");
+
+console.log(hashParam(param,'/vips-mobile/rest/shopping/wap2/product/module/list/v2'));
+console.log(getSecret(param));
+</script>
+
+
+
+<body>
+    
+</body>
+</html>
+
+
+

@@ -34,7 +34,7 @@
             { name: '失败', val: 0 },
             { name: '待支付', val: 1 },
             { name: '支付成功', val: 2 },
-            { name: '全部', val: null }
+            { name: '全部', val: null },
           ]"
           :key="item.val"
           :label="item.name"
@@ -86,14 +86,18 @@
       </el-table-column>
       <el-table-column prop="userIp" label="用户请求IP"> </el-table-column>
       <el-table-column prop="cardNumber" label="卡号"> </el-table-column>
+      <!-- orgAppCk -->
+      <el-table-column prop="orgAppCk" label="orgAppCk" show-overflow-tooltip="true"> </el-table-column>
+
       <el-table-column
         prop="orderStatus"
         label="订单状态"
-        style='`${scope.row.status == 0 "color:red" ?(scope.row.status == 1?"":"color:green")}`'
+        style='`${scope.row.status == 0||3 "color:red" ?(scope.row.status == 1?"":"color:green")}`'
       >
         <template slot-scope="scope" class="fail">
           <span v-if="scope.row.status == 0"> 失败 </span>
           <span v-else-if="scope.row.status == 1"> 待支付 </span>
+          <span v-else-if="scope.row.status == 3"> 退款 </span>
           <span v-else-if="scope.row.status == 2" style="color: green">
             支付成功
           </span>
@@ -156,7 +160,7 @@ import {
   getclient_order,
   getcallback,
   getbaifenbi,
-  outKm
+  outKm,
 } from "../../api/ajax";
 export default {
   data() {
@@ -172,7 +176,7 @@ export default {
       dialogVisible: false, //dialog弹窗
       originalTradeNo: "",
       searchTime: [],
-      PayorderStatus: null
+      PayorderStatus: null,
     };
   },
   mounted() {
@@ -192,13 +196,11 @@ export default {
     },
     // 下载
     outkami() {
-      window.location.href = `http://${
-        window.location.hostname
-      }:8888/pre/ck/upload/uploadMy?carMy=${this.outkami_input}`;
+      window.location.href = `http://${window.location.hostname}:8888/pre/ck/upload/uploadMy?carMy=${this.outkami_input}`;
     },
     ajax() {
       var that = this;
-      getclient_order({ current: that.currentPage, size: 30 }).then(res => {
+      getclient_order({ current: that.currentPage, size: 30 }).then((res) => {
         that.tableData = res.data.data.records;
         that.pagetotol = res.data.data.total;
         that.currentPage = res.data.data.current;
@@ -228,8 +230,8 @@ export default {
         originalTradeNo: this.originalTradeNo,
         startCreateTime,
         endCreateTime,
-        status: this.PayorderStatus
-      }).then(res => {
+        status: this.PayorderStatus,
+      }).then((res) => {
         this.tableData = res.data.data.records;
       });
     },
@@ -239,7 +241,7 @@ export default {
       getbaifenbi(
         this.formatDate(this.value1[0], "yyyy-MM-dd HH:mm:ss"),
         this.formatDate(this.value1[1], "yyyy-MM-dd HH:mm:ss")
-      ).then(res => {
+      ).then((res) => {
         that.baifenbi = res.data.data * 100 + "%";
       });
     },
@@ -267,21 +269,36 @@ export default {
         endCreateTime,
         status: this.PayorderStatus,
         current: that.currentPage,
-        size: 30
-      }).then(res => {
+        size: 30,
+      }).then((res) => {
         this.tableData = res.data.data.records;
       });
     },
     handleClick(id) {
-      getcallback({ id }).then(res => {
-        if (res.data.code == 200) {
-          const h = this.$createElement;
-          this.$notify({
-            title: "获取成功",
-            message: h("i", { style: "color: teal" }, "获取成功")
+      var that=this;
+      this.$confirm("此操作将获取卡密, 是否继续?", "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning",
+      })
+        .then(() => {
+          getcallback({ id }).then((res) => {
+            if (res.data.code == 200) {
+              that.ajax();
+              const h = this.$createElement;
+              this.$notify({
+                title: "获取成功",
+                message: h("i", { style: "color: teal" }, "获取成功"),
+              });
+            }
           });
-        }
-      });
+        })
+        .catch(() => {
+          this.$message({
+            type: "info",
+            message: "已取消删除",
+          });
+        });
     },
     formatDate(date, fmt) {
       date = new Date(date);
@@ -299,7 +316,7 @@ export default {
         "d+": date.getDate(),
         "H+": date.getHours(),
         "m+": date.getMinutes(),
-        "s+": date.getSeconds()
+        "s+": date.getSeconds(),
       };
       for (let k in o) {
         if (new RegExp(`(${k})`).test(fmt)) {
@@ -311,8 +328,8 @@ export default {
         }
       }
       return fmt;
-    }
-  }
+    },
+  },
 };
 </script>
 <style lang="scss" scoped>

@@ -186,6 +186,7 @@ export default {
           this.$store.dispatch('LoginByUsername', this.loginForm).then(() => {
             this.loading = false
             this.$router.push({ path: this.redirect || '/' })
+            localStorage.setItem('userinfo',JSON.stringify(this.loginForm))
           }).catch(() => {
             this.loading = false
             this.refreshCaptcha()

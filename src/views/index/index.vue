@@ -1,7 +1,7 @@
 
 <template>
   <!-- // water -->
-  <div>
+  <div v-if="isSee">
     <h1>流水订单统计</h1>
     <div class="block" style="margin-bottom: 30px">
       <span class="demonstration">时间选择:</span>
@@ -13,7 +13,7 @@
         end-placeholder="结束日期"
       >
       </el-date-picker>
-      <el-button type="primary" @click="search">查找</el-button>
+      <el-button type="primary" @click="search" :disabled="user==='hexiao'">查找</el-button>
     </div>
     <!-- <el-table
       :data="source"
@@ -37,7 +37,7 @@
 </template>
 
 <script>
-import { getflowing_water, getbaifenbi, getTK } from "../../api/ajax";
+import { getflowing_water, getbaifenbi, writeOffCodestatistics } from "../../api/ajax";
 import * as echarts from "echarts";
 
 export default {
@@ -52,11 +52,17 @@ export default {
         new Date(),
       ],
       cgl: "",
+      isSee: true,
+      user:""
     };
   },
 
   mounted() {
-    this.ajax();
+    this.user = JSON.parse(localStorage.getItem("userinfo")).username;
+    if (this.user !== "hexiao") {
+      this.ajax();
+    }
+
     // console.log(this.formatDate(new Date(), "yyyy-MM-dd"));
   },
   methods: {
@@ -85,8 +91,8 @@ export default {
                 value:
                   that.tableData[0].createOrderNums -
                   that.tableData[0].successOrderNums,
-                name: "创建订单量",
-                itemStyle: { color: "#006699" },
+                name: "失败订单",
+                itemStyle: { color: "#ff4d4f" },
               },
               {
                 value: that.tableData[0].successOrderNums,
@@ -134,8 +140,8 @@ export default {
                 value:
                   that.tableData[0].totalFlowingWater -
                   that.tableData[0].successFlowingWater,
-                name: "总流水",
-                itemStyle: { color: "#006699" },
+                name: "失败流水",
+                itemStyle: { color: "#ff4d4f" },
               },
               {
                 value: that.tableData[0].successFlowingWater,
@@ -256,29 +262,47 @@ export default {
     },
     echarts5() {
       var that = this;
-      let arr=[]
-      console.log(that.source)
-      that.source.forEach((item)=>{
-        arr.push([item.fileName,item.refundNum==null?0:item.refundNum,,item.successNum==null?0:item.successNum])
-      })
-
       var myChart = echarts.init(document.getElementById("e5"));
       var option = {
-        legend: {},
-        tooltip: {},
-        dataset: {
-          source: arr
+        title: {
+          text: "成功率统计",
+          left: "center",
         },
-        xAxis: { type: "category", axisLabel: {
-                fontSize:'22',
-                fontFamily:'微软雅黑',
-                marginTop:'35px',
-                show:true,
-            }, },
-        yAxis: {},
-        // Declare several bar series, each will be mapped
-        // to a column of dataset.source by default.
-        series: [{ type: "bar" }, { type: "bar" }, { type: "bar" }],
+        tooltip: {
+          trigger: "item",
+        },
+        legend: {
+          orient: "vertical",
+          left: "left",
+        },
+        series: [
+          {
+            name: "",
+            type: "pie",
+            radius: "50%",
+            data: [
+              {
+                value: that.source,
+                name: "总数",
+                itemStyle: { color: "#006699" },
+              },
+              {
+                value: that.source,
+                name: "成功数",
+                itemStyle: { color: "#ff4d4f" },
+              },
+            ],
+            itemStyle: {
+              normal: {
+                label: {
+                  show: true,
+                  formatter: " ({d}%)", //展示的文字   类型+百分比
+                },
+                labelLine: { show: true },
+              },
+            },
+          },
+        ],
       };
 
       option && myChart.setOption(option);
@@ -305,13 +329,13 @@ export default {
         that.cgl = res.data.data * 100;
         that.echarts4();
       });
-      getTK(
+      writeOffCodestatistics(
         that.formatDate(that.value1[0], "yyyy-MM-dd HH:mm:ss"),
         that.formatDate(that.value1[1], "yyyy-MM-dd HH:mm:ss")
       ).then((res) => {
         console.log(res);
         that.source = res.data.data;
-        that.echarts5()
+        that.echarts5();
       });
     },
 
@@ -372,6 +396,14 @@ export default {
         that.cgl = res.data.data * 100;
         that.echarts4();
       });
+      writeOffCodestatistics(
+        that.formatDate(that.value1[0], "yyyy-MM-dd HH:mm:ss"),
+        that.formatDate(that.value1[1], "yyyy-MM-dd HH:mm:ss")
+      ).then((res) => {
+        console.log(res);
+        that.source = res.data.data;
+        that.echarts5();
+      });
     },
   },
 };
@@ -391,7 +423,7 @@ export default {
   > div {
     height: 500px;
     width: 25%;
-    &:last-child{
+    &:last-child {
       width: 100%;
     }
     @media screen and (max-width: 750px) {

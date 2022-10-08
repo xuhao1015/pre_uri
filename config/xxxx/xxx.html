@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.0.0/core.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.0.0/enc-base64.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.0.0/cipher-core.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.0.0/aes.min.js"></script>
+<script>
+
+const key = CryptoJS.enc.Hex.parse("ae179beabc15e5f6b4070f1a6eff5a09"); // 十六位十六进制数作为密钥
+const iv = CryptoJS.enc.Hex.parse("2e64043f8e626ea9fe8f99bdf399d611");  // 十六位十六进制数作为密钥偏移量
+// CryptoJS.enc.Utf8.parse
+// 解密方法
+function Decrypt(word) {
+//   let encryptedHexStr = CryptoJS.enc.Hex.parse(word);
+// CryptoJS.enc.Utf8.parse()
+//   let srcs = CryptoJS.enc.Base64.stringify(encryptedHexStr);
+  let decrypt = CryptoJS.AES.decrypt(word, key, {
+    iv: iv,
+    mode: CryptoJS.mode.CBC,
+    padding: CryptoJS.pad.Pkcs7
+  });
+  let decryptedStr = decrypt.toString(CryptoJS.enc.Utf8);
+  return decryptedStr.toString();
+}
+
+// 加密方法
+function Encrypt(word) {
+  // var srcs = CryptoJS.enc.Utf8.parse(JSON.stringify(word));
+  var encrypted = CryptoJS.AES.encrypt(word, key, {
+    iv: iv,
+    mode: CryptoJS.mode.CBC,
+    padding: CryptoJS.pad.Pkcs7
+  });
+  // let h=iv;
+  // h.concat(encrypted.ciphertext)
+  // return   h.concat(encrypted.ciphertext),h.toString()
+  let h=iv;
+  let b=CryptoJS.enc.Base64.stringify(h.concat(encrypted.ciphertext))
+ return b,b.toString();
+  // return encrypted.toString();
+}
+
+//var aaa= Decrypt('ifo8AxTwyYHQGsY55FGZDqssBU2JkKuk9w31W1e+vmmFiKidBzy+V1nVOtwR8onS6HaAIBLZlFlpJOX465PEjyP/AE+l3Vmwvvb8pfc4cAqRX5LUMGCmjtekF0ZZmo1Mb6orhphAqpgZBgIGyKQs+2QIpLWqBHKKFQkoAxRMSl5PTrN9K7G0bLh62ulJCIpX')
+var  aaa =Encrypt('scene=CONVENIENT_LOGIN_WAP_AFTER_CAPTCHA&mobile=15828287465&biz_data={"sid":"55460eb4dca54557a4ac7207c2436e3c","captchaTypePwd":"7","captchaId":"6iGUr4Xz80d5TsVfz4ZXsQ-j6S9DY_rTaQpBIC5M943fPjWHaFXbDTlIypgJfxQKK3Ov0UcVowJhX1WA9BYXBa1lTO30dtFklcmjSLtZTE3mCD-LKh8CrIvB9gWkb6Er0z94yXH7cCyhxLigXTWjq314HVYnwWgQEZtgq-6ECT0XEFQz4s1BW-BYXSPlXgToaWCyrEQHsSLDrwTZ7bB34L8bGeCRjwc8_kFInp3OBdwbGrb2zZwKAs-NM1E_TiI2VhusFB0ExasujYn91g_Hfzbcjn5cZ-UX1XfjoO8EKcDSKxG8WGrAB9K1FPS3r3Jv3DS5MPuOsnbmonHSFuhRcikljktN7mFOKOEVMy8WDGZm543Y328Mhtp1Z377yLHrObv9oB8YfTo0LfjkiLg37KUTQ8xNEOd7.684792350","ticket":"28RzXRxFlwRTbPX0I93yHl_FmvjuUAqoI0tOoE-uoiVlyty-ZNVIQ4wwOGka-flHKNZBvAfEc3CVKXEgrsdO5fOUE559Z6IuChGCmNZqYcJdsA2DaAobIhHhGu3CUZ2cQ6YQH3Y7HTiyimbJ3Emd6sfwEUe78IWge9yAX0nv9eFBnFe18fMR2hxhmvJ0TvmxKf-QPaX1XbgY8aLbKD8hDNMOHEyy1tW1Vf8TSDOX1Ad6kaGsqCqztqoWqjPbWATvwrajsjBz65IjD6vCVPjYxSjV4NtD41X6-s4gIF1DztTZdNR5KdcHRsGuHyWE8s150TEsNsWqVPzf0eJpHnvf0pLRK_w4p6pIY8hJEFHGD7wFUnsgCewvAagG79DaGzDIVsm2u_IhcR5znyIOuY_LW1iKzIHLkYhT-00jFy818hs9eEv3Ba_HtgDF3QOpEBTK4JCkUhi7ktgU0X78cLlBcUnm8RW97hh9G74OPXnIm6H9ZC-lqt-hA_M6y6zL8AFWhY6poflYe-xOeXvJp0TguQ6KEIR0zdylppUSMdQrtDt2FaV1YHS3eUvuTHSaBnCd426OqxArTXaVGOx62vmvFnpYZAeAvdpbu0Br4Ih4qlo.2044371647"}');
+console.log(aaa);
+</script>
+
+
+
+<body>
+    
+</body>
+</html>
+
+
+
