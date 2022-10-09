@@ -21,13 +21,13 @@
       style="width: 100%"
       fit="true"
     >
-      <el-table-column fixed prop="createOrderNums" label="createOrderNums">
+      <el-table-column fixed prop="createOrderNums" label="总订单数">
       </el-table-column>
-      <el-table-column prop="successOrderNums" label="successOrderNums">
+      <el-table-column prop="successOrderNums" label="成功订单数">
       </el-table-column>
-      <el-table-column prop="totalFlowingWater" label="totalFlowingWater">
+      <el-table-column prop="totalFlowingWater" label="总流水">
       </el-table-column>
-      <el-table-column prop="successFlowingWater" label="successFlowingWater">
+      <el-table-column prop="successFlowingWater" label="成功流水">
         <!-- <template slot-scope="scope">
           <span>{{ scope.row.expirationTime | FormatDate("yyyy-MM-dd") }}</span>
         </template> -->
