@@ -51,7 +51,9 @@
       </el-table-column>
       <el-table-column prop="failReason" label="失败原因" show-overflow-tooltip="true"></el-table-column>
       <el-table-column prop="fileName" label="文件名"> </el-table-column>
+      <el-table-column prop="createTime" label="创建时间"></el-table-column>
       <el-table-column prop="updateTime" label="修改时间"></el-table-column>
+
       <el-table-column label="操作" width="140px" align="center">
         <template slot-scope="{ row }">
           <el-button type="primary" @click="changeStatus(row)">{{
