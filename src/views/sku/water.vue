@@ -39,17 +39,17 @@
       </el-table-column> -->
       <el-table-column
         prop="failFlowingWater"
-        label="failFlowingWater"
+        label="失败流水"
         width="120"
       >
       </el-table-column>
       <el-table-column
         prop="noMatchFlowingWater"
-        label="noMatchFlowingWater"
+        label="没有匹配的流水"
         width="120"
       >
       </el-table-column>
-      <el-table-column prop="successRate" label="successRate" width="120">
+      <el-table-column prop="successRate" label="成功比例" width="120">
       </el-table-column>
     </el-table>
     <!-- <div class="pagination-flex">
