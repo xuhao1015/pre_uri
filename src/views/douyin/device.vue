@@ -8,24 +8,20 @@
       width="30%"
       :before-close="handleClose"
     >
-     <div>
-       <p> 请输入deviceId:</p> <el-input
-        v-model="add.deviceId"
-        placeholder="请输入deviceId"
-      ></el-input>
-     </div>
-     <div>
-        <p>请输入iid:</p>
+      <div>
+        <p>请输入deviceId:</p>
         <el-input
-        v-model="add.iid"
-        placeholder="请输入iid"
-      />
-     </div>
+          v-model="add.deviceId"
+          placeholder="请输入deviceId"
+        ></el-input>
+      </div>
+      <div>
+        <p>请输入iid:</p>
+        <el-input v-model="add.iid" placeholder="请输入iid" />
+      </div>
       <span slot="footer" class="dialog-footer">
         <el-button @click="dialogVisible = false">取 消</el-button>
-        <el-button type="primary" @click="addDecive()"
-          >确 定</el-button
-        >
+        <el-button type="primary" @click="addDecive()">确 定</el-button>
       </span>
     </el-dialog>
 
@@ -63,8 +59,14 @@
         prop="lastSuccessTime"
         label="最后一次成功时间"
       ></el-table-column>
+
+      <el-table-column prop="success" label="成功次数"></el-table-column>
+
       <el-table-column prop="lastFailTime" label="最后一次失败时间">
       </el-table-column>
+
+      <el-table-column prop="fail" label="失败次数"></el-table-column>
+
       <el-table-column
         prop="failReason"
         label="失败原因"
@@ -92,7 +94,7 @@
   </div>
 </template>
   <script>
-import { getAccountList, changeDouyinAble,addDevice } from "@/api/device";
+import { getAccountList, changeDouyinAble, addDevice } from "@/api/device";
 export default {
   data() {
     return {
@@ -108,7 +110,7 @@ export default {
         iid: null,
         deviceId: null,
       },
-      dialogVisible:false
+      dialogVisible: false,
     };
   },
   mounted() {
@@ -140,22 +142,22 @@ export default {
     },
     // 查找
     onSearch() {
-        this.search.current=1
+      this.search.current = 1;
       this.ajax(this.search);
     },
     changePage(val) {
       this.search.current = val;
       this.ajax(this.search);
     },
-   async addDecive(){
-       const {data}=await addDevice({...this.add});
-       if(data.code===200){
-        this.$message.success("新增成功")
-        this.dialogVisible=false;
-       }else{
-        this.$message.error("新增失败")
-       }
-    }
+    async addDecive() {
+      const { data } = await addDevice({ ...this.add });
+      if (data.code === 200) {
+        this.$message.success("新增成功");
+        this.dialogVisible = false;
+      } else {
+        this.$message.error("新增失败");
+      }
+    },
   },
 };
 </script>
