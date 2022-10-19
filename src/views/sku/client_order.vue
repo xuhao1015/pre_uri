@@ -87,8 +87,18 @@
       <el-table-column prop="userIp" label="用户请求IP"> </el-table-column>
       <el-table-column prop="cardNumber" label="卡密号码"> </el-table-column>
       <!-- orgAppCk -->
-       <el-table-column prop="clickPay" label="点击支付" show-overflow-tooltip="true"> </el-table-column>
-      <el-table-column prop="orgAppCk" label="查询的最后时间" show-overflow-tooltip="true"> </el-table-column>
+      <el-table-column
+        prop="clickPay"
+        label="点击支付"
+        show-overflow-tooltip="true"
+      >
+      </el-table-column>
+      <el-table-column
+        prop="orgAppCk"
+        label="查询的最后时间"
+        show-overflow-tooltip="true"
+      >
+      </el-table-column>
 
       <el-table-column
         prop="orderStatus"
@@ -112,8 +122,22 @@
       </el-table-column>
       <el-table-column fixed="right" label="操作" width="100">
         <template slot-scope="scope">
-          <el-button @click="handleClick(scope.row.id)" type="text" size="small"
+          <el-button @click="handleClick(scope.row, 0)" type="info" size="small"
+            >通知</el-button
+          >
+          <br />
+          <el-button
+            @click="handleClick(scope.row, 1)"
+            type="primary"
+            size="small"
             >获取卡密</el-button
+          >
+          <br />
+          <el-button
+            @click="handleChangeStatus(scope.row)"
+            type="danger"
+            size="small"
+            >补单</el-button
           >
         </template>
       </el-table-column>
@@ -129,24 +153,6 @@
       >
       </el-pagination>
     </div>
-    
-    <!-- <div class="div-flex">
-      <span class="demonstration">时间选择:</span>
-      <el-date-picker
-        v-model="value1"
-        type="datetimerange"
-        range-separator="至"
-        start-placeholder="开始日期"
-        end-placeholder="结束日期"
-      >
-      </el-date-picker>
-      <p>
-        订单成功率：<span>{{ baifenbi }}</span>
-      </p>
-      <el-button type="primary" @click="chaxun()">查询成功率</el-button>
-    </div> -->
-
-    <!-- <div id="Modal"></div> -->
     <el-dialog
       title="支付详情"
       :visible.sync="dialogVisible"
@@ -155,15 +161,39 @@
     >
       <div id="Modal"></div>
     </el-dialog>
+    <!-- 修改补单状态 -->
+    <el-dialog
+      :visible.sync="orderVisible"
+      width="30%"
+      :before-close="handleOrderClose"
+    >
+    <span slot="title" class="dialog-footer">
+      补单状态编辑- 当前补单id：{{orderCurrentId}}
+    </span>
+      <div>
+      
+        <el-radio v-model="orderradio" label="0">支付失败</el-radio>
+        <el-radio v-model="orderradio" label="1">待支付</el-radio>
+        <el-radio v-model="orderradio" label="2">成功</el-radio>
+        <el-radio v-model="orderradio" label="3">退款</el-radio>
+      </div>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="orderVisible = false">取 消</el-button>
+        <el-button type="primary" @click="handleChangeStatusOK"
+          >确 定</el-button
+        >
+      </span>
+    </el-dialog>
   </div>
 </template>
 
 <script>
 import {
   getclient_order,
-  getcallback,
+  getkami,
   getbaifenbi,
-  outKm,
+  getnotify,
+  getbudan,
 } from "../../api/ajax";
 export default {
   data() {
@@ -177,6 +207,9 @@ export default {
       value1: [],
       outkami_input: "",
       dialogVisible: false, //dialog弹窗
+      orderVisible: false,
+      orderradio: null,
+      orderCurrentId:null,//当前补单id
       originalTradeNo: "",
       searchTime: [],
       PayorderStatus: null,
@@ -196,6 +229,10 @@ export default {
     },
     handleClose(done) {
       done();
+    },
+    // 关闭订单状态弹窗
+    handlOrderClose() {
+      this.orderVisible = false;
     },
     // 下载
     outkami() {
@@ -277,24 +314,49 @@ export default {
         this.tableData = res.data.data.records;
       });
     },
-    handleClick(id) {
-      var that=this;
-      this.$confirm("此操作将获取卡密, 是否继续?", "提示", {
-        confirmButtonText: "确定",
-        cancelButtonText: "取消",
-        type: "warning",
-      })
-        .then(() => {
-          getcallback({ id }).then((res) => {
-            if (res.data.code == 200) {
-              that.ajax();
-              const h = this.$createElement;
-              this.$notify({
-                title: "获取成功",
-                message: h("i", { style: "color: teal" }, "获取成功"),
-              });
-            }
-          });
+    handleClick(row, type) {
+      let id = row.id;
+      var that = this;
+      this.$confirm(
+        `此操作将${
+          type === 0 ? "通知" : type === 1 ? "获取卡密" : "补单"
+        }, 是否继续?`,
+        "提示",
+        {
+          confirmButtonText: "确定",
+          cancelButtonText: "取消",
+          type: "warning",
+        }
+      )
+        .then(async () => {
+          let res;
+          if (type === 0) {
+            res = await getnotify({ id });
+          } else if (type === 1) {
+            res = await getkami({ id });
+          } else if (type === 2) {
+            res = await getbudan({ id, status: row.status });
+          } else {
+            return this.$message.error("错误，请联系管理员");
+          }
+
+          if (res.data.code == 200) {
+            that.ajax();
+            const h = this.$createElement;
+            this.$notify({
+              title: `${
+                type === 0 ? "通知" : type === 1 ? "获取卡密" : "补单"
+              }获取成功`,
+              message: h(
+                "i",
+                { style: "color: teal" },
+                `${type === 0 ? "通知" : type === 1 ? "获取卡密" : "补单"}成功`
+              ),
+            });
+          }
+          else{
+        this.$message.error("失败")
+      }
         })
         .catch(() => {
           this.$message({
@@ -302,6 +364,28 @@ export default {
             message: "已取消删除",
           });
         });
+    },
+    // 补单按钮
+    handleChangeStatus(row) {
+      this.orderVisible = true;
+      this.orderradio = JSON.stringify(row.status);
+      this.orderCurrentId=row.id
+      console.log("rowstatus=", row.status);
+    },
+    // 点击补单弹窗确认回调
+    async handleChangeStatusOK() {
+      const res = await getbudan({ id:this.orderCurrentId, status: this.orderradio });
+      if (res.data.code === 200) {
+        this.ajax();
+        this.orderVisible=false;
+        const h = this.$createElement;
+        this.$notify({
+          title: "补单成功",
+          message: h("i", { style: "color: teal" }, "补单成功"),
+        });
+      }else{
+        this.$message.error("补单失败")
+      }
     },
     formatDate(date, fmt) {
       date = new Date(date);

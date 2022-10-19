@@ -109,9 +109,23 @@ export function getflowing_water(params) {
   });
 }
 // notify
-export function getcallback(params) {
+export function getnotify(params) {
   return request({
     url: "/ck/notify",
+    method: "get",
+    params: params
+  });
+}
+export function getkami(params) {
+  return request({
+    url: "/ck/kami",
+    method: "get",
+    params: params
+  });
+}
+export function getbudan(params) {
+  return request({
+    url: "/ck/budan",
     method: "get",
     params: params
   });
