@@ -1,82 +1,91 @@
 <template>
   <div>
-    <h1>客户订单管理</h1>
-    <el-button type="primary" @click="ajax">刷新当前页数据</el-button>
-    <div style="margin-bottom: 30px">
-      <el-input
-        v-model="input1"
-        placeholder="请输入系统订单号"
-        style="width: 150px"
-      ></el-input>
-      <el-input
-        v-model="input2"
-        placeholder="请输入外部订单号"
-        style="width: 150px"
-      ></el-input>
-      <el-input
-        v-model="originalTradeNo"
-        placeholder="请输入JD订单号"
-        style="width: 150px"
-      ></el-input>
+    <el-card class="box-card">
+      <el-collapse>
+        <el-collapse-item title="筛选条件" name="1">
+          <el-button type="primary" @click="ajax">刷新当前页数据</el-button>
+          <div style="margin-bottom: 30px">
+            <el-input
+              v-model="input1"
+              placeholder="请输入系统订单号"
+              style="width: 150px"
+            ></el-input>
+            <el-input
+              v-model="input2"
+              placeholder="请输入外部订单号"
+              style="width: 150px"
+            ></el-input>
+            <el-input
+              v-model="originalTradeNo"
+              placeholder="请输入JD订单号"
+              style="width: 150px"
+            ></el-input>
 
-      <el-date-picker
-        v-model="searchTime"
-        type="datetimerange"
-        range-separator="至"
-        start-placeholder="开始日期"
-        end-placeholder="结束日期"
-      >
-      </el-date-picker>
-      <!-- 0，失败，1待支付，2支付成功 -->
-      <el-select v-model="PayorderStatus" placeholder="请选择">
-        <el-option
-          v-for="item in [
-            { name: '失败', val: 0 },
-            { name: '待支付', val: 1 },
-            { name: '支付成功', val: 2 },
-            { name: '全部', val: null },
-          ]"
-          :key="item.val"
-          :label="item.name"
-          :value="item.val"
-        >
-        </el-option>
-      </el-select>
-      <el-button type="primary" @click="search">查找</el-button>
-    </div>
-    <el-input
-      v-model="outkami_input"
-      placeholder="请输入卡密"
-      style="width: 300px"
-    ></el-input>
-    <el-button type="danger" @click="outkami()">导出</el-button>
-
+            <el-date-picker
+              v-model="searchTime"
+              type="datetimerange"
+              range-separator="至"
+              start-placeholder="开始日期"
+              end-placeholder="结束日期"
+            >
+            </el-date-picker>
+            <!-- 0，失败，1待支付，2支付成功 -->
+            <el-select v-model="PayorderStatus" placeholder="请选择">
+              <el-option
+                v-for="item in [
+                  { name: '失败', val: 0 },
+                  { name: '待支付', val: 1 },
+                  { name: '支付成功', val: 2 },
+                  { name: '全部', val: null },
+                ]"
+                :key="item.val"
+                :label="item.name"
+                :value="item.val"
+              >
+              </el-option>
+            </el-select>
+            <el-button type="primary" @click="search">查找</el-button>
+          </div>
+          <el-input
+            v-model="outkami_input"
+            placeholder="请输入卡密"
+            style="width: 300px"
+          ></el-input>
+          <el-button type="danger" @click="outkami()">导出</el-button>
+        </el-collapse-item>
+      </el-collapse>
+    </el-card>
+    <el-card>
     <el-table
       :data="tableData"
       border
       :row-key="tableData.id"
-      style="width: 100%"
       fit="true"
-    >
+      size="mini"
+      style="font-size: 10px"
+      :row-style="{height:'20px'}"
+      :cell-style="{padding:'0px'}"
+      v-loading="loading"
+      >
       <el-table-column label="订单支付详情" show-overflow-tooltip>
         <template slot-scope="scope">
           <el-button @click="showModal(scope.row.html)">查看</el-button>
         </template>
       </el-table-column>
-      <el-table-column prop="tradeNo" label="订单号"> </el-table-column>
+      <el-table-column prop="tradeNo" label="订单号" width="150"> </el-table-column>
       <el-table-column prop="amount" label="订单金额"> </el-table-column>
-      <el-table-column prop="outTradeNo" label="外部订单号"> </el-table-column>
-      <el-table-column prop="originalTradeNo" label="商城订单号">
+      <el-table-column prop="outTradeNo" label="外部订单号" width="170"> </el-table-column>
+      <el-table-column prop="originalTradeNo" label="商城订单号" width="150">
       </el-table-column>
 
-      <el-table-column prop="createTimeStr" label="订单创建时间">
+      <el-table-column prop="createTimeStr" label="订单创建时间" width="135">
       </el-table-column>
-      <el-table-column prop="" label="成功支付时间">
+      <el-table-column prop="" label="成功支付时间" width="135">
         <template slot-scope="scope">
           <span>{{ scope.row.paySuccessTime }}</span>
         </template>
       </el-table-column>
-      <el-table-column prop="matchTime" label="匹配时间(s)"> </el-table-column>
+      <el-table-column prop="matchTime" label="匹配时间(s)" > </el-table-column>
       <el-table-column label="用户请求头">
         <template slot-scope="{ row }">
           {{
@@ -84,8 +93,8 @@
           }}
         </template>
       </el-table-column>
-      <el-table-column prop="userIp" label="用户请求IP"> </el-table-column>
-      <el-table-column prop="cardNumber" label="卡密号码"> </el-table-column>
+      <el-table-column prop="userIp" label="用户请求IP" width="110"> </el-table-column>
+      <el-table-column prop="cardNumber" label="卡密号码" width="150"> </el-table-column>
       <!-- orgAppCk -->
       <el-table-column
         prop="clickPay"
@@ -101,6 +110,7 @@
       </el-table-column>
 
       <el-table-column
+      width="60"
         prop="orderStatus"
         label="订单状态"
         style='`${scope.row.status == 0||3 "color:red" ?(scope.row.status == 1?"":"color:green")}`'
@@ -110,29 +120,27 @@
           <span v-else-if="scope.row.status == 1"> 待支付 </span>
           <span v-else-if="scope.row.status == 3"> 退款 </span>
           <span v-else-if="scope.row.status == 2" style="color: green">
-            支付成功
+            成功
           </span>
         </template>
       </el-table-column>
 
-      <el-table-column label="通知是否成功">
+      <el-table-column label="通知是否成功"  width="60" >
         <template slot-scope="scope">
           <span>{{ scope.row.notifySucc == 1 ? "成功" : "失败" }}</span>
         </template>
       </el-table-column>
-      <el-table-column fixed="right" label="操作" width="100">
+      <el-table-column fixed="right" label="操作" width="220">
         <template slot-scope="scope">
           <el-button @click="handleClick(scope.row, 0)" type="info" size="small"
             >通知</el-button
           >
-          <br />
           <el-button
             @click="handleClick(scope.row, 1)"
             type="primary"
             size="small"
-            >获取卡密</el-button
+            >卡密</el-button
           >
-          <br />
           <el-button
             @click="handleChangeStatus(scope.row)"
             type="danger"
@@ -142,6 +150,7 @@
         </template>
       </el-table-column>
     </el-table>
+  </el-card>
     <div class="pagination-flex">
       <el-pagination
         background
@@ -167,11 +176,10 @@
       width="30%"
       :before-close="handleOrderClose"
     >
-    <span slot="title" class="dialog-footer">
-      补单状态编辑- 当前补单id：{{orderCurrentId}}
-    </span>
+      <span slot="title" class="dialog-footer">
+        补单状态编辑- 当前补单id：{{ orderCurrentId }}
+      </span>
       <div>
-      
         <el-radio v-model="orderradio" label="0">支付失败</el-radio>
         <el-radio v-model="orderradio" label="1">待支付</el-radio>
         <el-radio v-model="orderradio" label="2">成功</el-radio>
@@ -209,10 +217,11 @@ export default {
       dialogVisible: false, //dialog弹窗
       orderVisible: false,
       orderradio: null,
-      orderCurrentId:null,//当前补单id
+      orderCurrentId: null, //当前补单id
       originalTradeNo: "",
       searchTime: [],
       PayorderStatus: null,
+      loading: true
     };
   },
   mounted() {
@@ -239,12 +248,13 @@ export default {
       window.location.href = `http://${window.location.hostname}:8888/pre/ck/upload/uploadMy?carMy=${this.outkami_input}`;
     },
     ajax() {
+      this.loading=true;
       var that = this;
       getclient_order({ current: that.currentPage, size: 20 }).then((res) => {
+        this.loading=false
         that.tableData = res.data.data.records;
         that.pagetotol = res.data.data.total;
         that.currentPage = res.data.data.current;
-        console.log("curr=", that.currentPage);
       });
     },
     changePage(val) {
@@ -353,10 +363,9 @@ export default {
                 `${type === 0 ? "通知" : type === 1 ? "获取卡密" : "补单"}成功`
               ),
             });
+          } else {
+            this.$message.error("失败");
           }
-          else{
-        this.$message.error("失败")
-      }
         })
         .catch(() => {
           this.$message({
@@ -369,22 +378,25 @@ export default {
     handleChangeStatus(row) {
       this.orderVisible = true;
       this.orderradio = JSON.stringify(row.status);
-      this.orderCurrentId=row.id
+      this.orderCurrentId = row.id;
       console.log("rowstatus=", row.status);
     },
     // 点击补单弹窗确认回调
     async handleChangeStatusOK() {
-      const res = await getbudan({ id:this.orderCurrentId, status: this.orderradio });
+      const res = await getbudan({
+        id: this.orderCurrentId,
+        status: this.orderradio,
+      });
       if (res.data.code === 200) {
         this.ajax();
-        this.orderVisible=false;
+        this.orderVisible = false;
         const h = this.$createElement;
         this.$notify({
           title: "补单成功",
           message: h("i", { style: "color: teal" }, "补单成功"),
         });
-      }else{
-        this.$message.error("补单失败")
+      } else {
+        this.$message.error("补单失败");
       }
     },
     formatDate(date, fmt) {
@@ -424,15 +436,7 @@ export default {
 .el-tooltip__popper {
   display: none;
 }
-// #Modal {
-//   position: absolute;
-//   left: 100px;
-//   top: 0;
-//   width: 1000px;
-//   z-index: 3;
-//   background-color: lightgray;
-//   display: none;
-// }
+
 .pagination-flex {
   display: flex;
   justify-content: flex-end;
@@ -456,6 +460,24 @@ export default {
       font-weight: bolder;
       font-size: larger;
     }
+  }
+}
+
+.box-card::v-deep {
+  margin-bottom: 20px;
+  .el-collapse {
+    border: none;
+  }
+  .el-collapse-item__header {
+    border-bottom: none;
+    font-size: 18px;
+    font-weight: bold;
+  }
+  .el-collapse-item__wrap {
+    border-bottom: none;
+  }
+  .el-form-item__label {
+    font-weight: normal;
   }
 }
 </style>
