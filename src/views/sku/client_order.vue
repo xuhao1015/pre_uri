@@ -125,11 +125,12 @@
         @current-change="changePage"
         :total="pagetotol"
         :current-page="currentPage"
-        page-size="30"
+        page-size="20"
       >
       </el-pagination>
     </div>
-    <div class="div-flex">
+    
+    <!-- <div class="div-flex">
       <span class="demonstration">时间选择:</span>
       <el-date-picker
         v-model="value1"
@@ -143,7 +144,8 @@
         订单成功率：<span>{{ baifenbi }}</span>
       </p>
       <el-button type="primary" @click="chaxun()">查询成功率</el-button>
-    </div>
+    </div> -->
+
     <!-- <div id="Modal"></div> -->
     <el-dialog
       title="支付详情"
@@ -201,7 +203,7 @@ export default {
     },
     ajax() {
       var that = this;
-      getclient_order({ current: that.currentPage, size: 30 }).then((res) => {
+      getclient_order({ current: that.currentPage, size: 20 }).then((res) => {
         that.tableData = res.data.data.records;
         that.pagetotol = res.data.data.total;
         that.currentPage = res.data.data.current;
@@ -225,7 +227,7 @@ export default {
       }
       getclient_order({
         current: val,
-        size: 30,
+        size: 20,
         tradeNo: this.input1,
         outTradeNo: this.input2,
         originalTradeNo: this.originalTradeNo,
@@ -270,7 +272,7 @@ export default {
         endCreateTime,
         status: this.PayorderStatus,
         current: that.currentPage,
-        size: 30,
+        size: 20,
       }).then((res) => {
         this.tableData = res.data.data.records;
       });
