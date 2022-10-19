@@ -85,9 +85,10 @@
         </template>
       </el-table-column>
       <el-table-column prop="userIp" label="用户请求IP"> </el-table-column>
-      <el-table-column prop="cardNumber" label="号码"> </el-table-column>
+      <el-table-column prop="cardNumber" label="卡密号码"> </el-table-column>
       <!-- orgAppCk -->
-      <el-table-column prop="orgAppCk" label="状态" show-overflow-tooltip="true"> </el-table-column>
+       <el-table-column prop="clickPay" label="点击支付" show-overflow-tooltip="true"> </el-table-column>
+      <el-table-column prop="orgAppCk" label="查询的最后时间" show-overflow-tooltip="true"> </el-table-column>
 
       <el-table-column
         prop="orderStatus"

@@ -8,7 +8,7 @@
     <div class="login-right">
       <div class="title-container">
         <h3 class="title">
-          后台管理系统
+          大爷系统
         </h3>
       </div>
       <el-tabs v-model="activeName" @tab-click="handleClick">
@@ -302,7 +302,7 @@ export default {
     align-items: center;
     height: 100%;
     /*background-image: url(https://img2018.cnblogs.com/blog/1211637/201908/1211637-20190809112720089-1507550740.png);*/
-    background-image: url('../../assets/63048029b07252112f0033e8e3c52865.jpg');
+    background-image: url('../../assets/background.jpg');
     /*background: red;*/
     background-size: cover;
 
