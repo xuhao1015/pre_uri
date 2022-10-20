@@ -66,8 +66,9 @@
       :row-style="{height:'20px'}"
       :cell-style="{padding:'0px'}"
       v-loading="loading"
+      :row-class-name="tableRowClassName"
       >
-      <el-table-column label="订单支付详情" show-overflow-tooltip>
+      <el-table-column label="订单支付详情" show-overflow-tooltip >
         <template slot-scope="scope">
           <el-button @click="showModal(scope.row.html)">查看</el-button>
         </template>
@@ -124,10 +125,9 @@
           </span>
         </template>
       </el-table-column>
-
       <el-table-column label="通知是否成功"  width="60" >
-        <template slot-scope="scope">
-          <span>{{ scope.row.notifySucc == 1 ? "成功" : "失败" }}</span>
+        <template slot-scope="{row}">
+          <span :style="`color:${row.status==2&&row.notifySucc!=1&&'red'}`">{{ row.notifySucc == 1 ? "成功" : "失败" }}</span>
         </template>
       </el-table-column>
       <el-table-column fixed="right" label="操作" width="220">
@@ -428,6 +428,12 @@ export default {
       }
       return fmt;
     },
+     tableRowClassName({row, rowIndex}) {
+        if (!row.clickPay) {
+          return 'tablebg';
+        }
+        return '';
+      }
   },
 };
 </script>
@@ -480,4 +486,12 @@ export default {
     font-weight: normal;
   }
 }
+ .el-table::v-deep .tablebg{background-color:	#DCDCDC;}
+ .el-table::v-deep .warning-row {
+    background: oldlace;
+  }
+
+  .el-table::v-deep .success-row {
+    background: #f0f9eb;
+  }
 </style>
