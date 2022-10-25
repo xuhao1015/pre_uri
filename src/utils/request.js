@@ -25,7 +25,6 @@ service.interceptors.request.use(
     return config;
   },
   error => {
-    console.log(error);
     Promise.reject(error);
   }
 );
@@ -33,7 +32,6 @@ service.interceptors.request.use(
 // response 拦截器
 service.interceptors.response.use(
   response => {
-    console.log(response);
     const code = response.data.code;
     if (code === 401) {
       MessageBox.confirm(

@@ -13,19 +13,17 @@
         end-placeholder="结束日期"
       >
       </el-date-picker>
-      <el-button type="primary" @click="search" :disabled="user==='hexiao'">查找</el-button>
+      <el-button type="primary" @click="search" :disabled="user === 'hexiao'"
+        >查找</el-button
+      >
+      <el-button
+        type="primary"
+        @click="refulshMinsOrder"
+        :disabled="user === 'hexiao'"
+        >10/20min订单刷新</el-button
+      >
     </div>
-    <!-- <el-table
-      :data="source"
-      border
-      :row-key="tableData.id"
-      style="width: 100%"
-      fit="true"
-    >
-      <el-table-column fixed prop="fileName" label="文件名"> </el-table-column>
-      <el-table-column prop="num" label="数量"> </el-table-column>
-      <el-table-column prop="status" label="状态"> </el-table-column>
-    </el-table> -->
+
     <div class="lsecharts">
       <div id="e1"></div>
       <div id="e2"></div>
@@ -37,23 +35,32 @@
 </template>
 
 <script>
-import { getflowing_water, getbaifenbi, writeOffCodestatistics } from "../../api/ajax";
+import {
+  getflowing_water,
+  getbaifenbi,
+  writeOffCodestatistics,
+} from "../../api/ajax";
 import * as echarts from "echarts";
+
 
 export default {
   data() {
     return {
       tableData: [],
+      minutesAgo10:[],
+      minutesAgo20:[],
       source: [],
       pagetotol: "",
       value1: [
-        new Date(this.formatDate(new Date(), "yyyy-MM-dd")) -
-          8 * 60 * 60 * 1000,
-        new Date(),
+        // new Date(this.formatDate(new Date(), "yyyy-MM-dd")) -
+        //   8 * 60 * 60 * 1000,
+        // new Date(),
+        this.dayjs().startOf('date').format('YYYY-MM-DD HH:mm:ss'),
+this.dayjs().endOf('date').format('YYYY-MM-DD HH:mm:ss')
       ],
       cgl: "",
       isSee: true,
-      user:""
+      user: "",
     };
   },
 
@@ -62,8 +69,6 @@ export default {
     if (this.user !== "hexiao") {
       this.ajax();
     }
-
-    // console.log(this.formatDate(new Date(), "yyyy-MM-dd"));
   },
   methods: {
     echarts() {
@@ -164,12 +169,61 @@ export default {
 
       option && myChart.setOption(option);
     },
+    // echarts3() {
+    //   var that = this;
+    //   var myChart = echarts.init(document.getElementById("e3"));
+    //   var option = {
+    //     title: {
+    //       text: "流水匹配统计",
+    //       left: "center",
+    //     },
+    //     tooltip: {
+    //       trigger: "item",
+    //     },
+    //     legend: {
+    //       orient: "vertical",
+    //       left: "left",
+    //     },
+    //     series: [
+    //       {
+    //         name: "",
+    //         type: "pie",
+    //         radius: "50%",
+    //         data: [
+    //           {
+    //             value:
+    //               that.tableData[0].totalFlowingWater -
+    //               that.tableData[0].noMatchFlowingWater,
+    //             name: "总流水",
+    //             itemStyle: { color: "#006699" },
+    //           },
+    //           {
+    //             value: that.tableData[0].noMatchFlowingWater,
+    //             name: "没有匹配流水",
+    //             itemStyle: { color: "#ff4d4f" },
+    //           },
+    //         ],
+    //         itemStyle: {
+    //           normal: {
+    //             label: {
+    //               show: true,
+    //               formatter: "{b} : {c} ({d}%)", //展示的文字   类型+百分比
+    //             },
+    //             labelLine: { show: true },
+    //           },
+    //         },
+    //       },
+    //     ],
+    //   };
+
+    //   option && myChart.setOption(option);
+    // },
     echarts3() {
       var that = this;
       var myChart = echarts.init(document.getElementById("e3"));
       var option = {
         title: {
-          text: "流水匹配统计",
+          text: "10min订单统计",
           left: "center",
         },
         tooltip: {
@@ -187,15 +241,15 @@ export default {
             data: [
               {
                 value:
-                  that.tableData[0].totalFlowingWater -
-                  that.tableData[0].noMatchFlowingWater,
-                name: "总流水",
-                itemStyle: { color: "#006699" },
+                  that.minutesAgo10[0].createOrderNums -
+                  that.minutesAgo10[0].successOrderNums,
+                name: "失败订单",
+                itemStyle: { color: "#ff4d4f" },
               },
               {
-                value: that.tableData[0].noMatchFlowingWater,
-                name: "没有匹配流水",
-                itemStyle: { color: "#ff4d4f" },
+                value: that.minutesAgo10[0].successOrderNums,
+                name: "成功订单",
+                itemStyle: { color: "#00ccff" },
               },
             ],
             itemStyle: {
@@ -218,7 +272,9 @@ export default {
       var myChart = echarts.init(document.getElementById("e4"));
       var option = {
         title: {
-          text: "成功率统计",
+          // text: "成功率统计",
+          text: "20min订单统计",
+
           left: "center",
         },
         tooltip: {
@@ -234,22 +290,34 @@ export default {
             type: "pie",
             radius: "50%",
             data: [
+              // {
+              //   value: 100 - that.cgl,
+              //   name: "总数",
+              //   itemStyle: { color: "#006699" },
+              // },
+              // {
+              //   value: that.cgl,
+              //   name: "成功数",
+              //   itemStyle: { color: "#ff4d4f" },
+              // },
               {
-                value: 100 - that.cgl,
-                name: "总数",
-                itemStyle: { color: "#006699" },
+                value:
+                  that.minutesAgo20[0].createOrderNums -
+                  that.minutesAgo20[0].successOrderNums,
+                name: "失败订单",
+                itemStyle: { color: "#ff4d4f" },
               },
               {
-                value: that.cgl,
-                name: "成功数",
-                itemStyle: { color: "#ff4d4f" },
+                value: that.minutesAgo20[0].successOrderNums,
+                name: "成功订单",
+                itemStyle: { color: "#00ccff" },
               },
             ],
             itemStyle: {
               normal: {
                 label: {
                   show: true,
-                  formatter: " ({d}%)", //展示的文字   类型+百分比
+                  formatter: " {b} : {c} ({d}%)", //展示的文字   类型+百分比
                 },
                 labelLine: { show: true },
               },
@@ -260,90 +328,115 @@ export default {
 
       option && myChart.setOption(option);
     },
-    echarts5() {
-      var that = this;
-      var myChart = echarts.init(document.getElementById("e5"));
-      var option = {
-        title: {
-          text: "成功率统计",
-          left: "center",
-        },
-        tooltip: {
-          trigger: "item",
-        },
-        legend: {
-          orient: "vertical",
-          left: "left",
-        },
-        series: [
-          {
-            name: "",
-            type: "pie",
-            radius: "50%",
-            data: [
-              {
-                value: that.source,
-                name: "总数",
-                itemStyle: { color: "#006699" },
-              },
-              {
-                value: that.source,
-                name: "成功数",
-                itemStyle: { color: "#ff4d4f" },
-              },
-            ],
-            itemStyle: {
-              normal: {
-                label: {
-                  show: true,
-                  formatter: " ({d}%)", //展示的文字   类型+百分比
-                },
-                labelLine: { show: true },
-              },
-            },
-          },
-        ],
-      };
+    // echarts5() {
+    //   var that = this;
+    //   var myChart = echarts.init(document.getElementById("e5"));
+    //   var option = {
+    //     title: {
+    //       text: "成功率统计",
+    //       left: "center",
+    //     },
+    //     tooltip: {
+    //       trigger: "item",
+    //     },
+    //     legend: {
+    //       orient: "vertical",
+    //       left: "left",
+    //     },
+    //     series: [
+    //       {
+    //         name: "",
+    //         type: "pie",
+    //         radius: "50%",
+    //         data: [
+    //           {
+    //             value: that.source,
+    //             name: "总数",
+    //             itemStyle: { color: "#006699" },
+    //           },
+    //           {
+    //             value: that.source,
+    //             name: "成功数",
+    //             itemStyle: { color: "#ff4d4f" },
+    //           },
+    //         ],
+    //         itemStyle: {
+    //           normal: {
+    //             label: {
+    //               show: true,
+    //               formatter: " ({d}%)", //展示的文字   类型+百分比
+    //             },
+    //             labelLine: { show: true },
+    //           },
+    //         },
+    //       },
+    //     ],
+    //   };
 
-      option && myChart.setOption(option);
+    //   option && myChart.setOption(option);
+    // },
+    // 刷新10min,20min订单查询
+    refulshMinsOrder(){
+      this.orderECHARSData10Min();
+      this.orderECHARSData20Min();
     },
-
     ajax() {
       var that = this;
+      this.refulshMinsOrder()
       getflowing_water({
-        startTime: that.formatDate(that.value1[0], "yyyy-MM-dd HH:mm:ss"),
-        endTime: that.formatDate(that.value1[1], "yyyy-MM-dd HH:mm:ss"),
+        startTime: this.dayjs(that.value1[0]).format("YYYY-MM-DD HH:mm:ss"),
+        endTime: this.dayjs(that.value1[1]).format("YYYY-MM-DD HH:mm:ss"),
       }).then((res) => {
-        // console.log("water", res);
         that.tableData = res.data.data.records;
-
         that.echarts();
         that.echarts2();
-        that.echarts3();
       });
       // 成功概率查询
-      getbaifenbi(
-        that.formatDate(that.value1[0], "yyyy-MM-dd HH:mm:ss"),
-        that.formatDate(that.value1[1], "yyyy-MM-dd HH:mm:ss")
-      ).then((res) => {
-        that.cgl = res.data.data * 100;
-        that.echarts4();
-      });
-      writeOffCodestatistics(
-        that.formatDate(that.value1[0], "yyyy-MM-dd HH:mm:ss"),
-        that.formatDate(that.value1[1], "yyyy-MM-dd HH:mm:ss")
-      ).then((res) => {
-        console.log(res);
-        that.source = res.data.data;
-        that.echarts5();
-      });
+      // getbaifenbi(
+      //   this.dayjs(that.value1[0]).format("YYYY-MM-DD HH:mm:ss"),
+      //   this.dayjs(that.value1[1]).format("YYYY-MM-DD HH:mm:ss")
+      // ).then((res) => {
+      //   that.cgl = res.data.data * 100;
+      //   that.echarts4();
+      // });
+      // writeOffCodestatistics(
+      //   this.dayjs(that.value1[0]).format("YYYY-MM-DD HH:mm:ss"),
+      //   this.dayjs(that.value1[1]).format("YYYY-MM-DD HH:mm:ss")
+      // ).then((res) => {
+      //   that.source = res.data.data;
+      //   that.echarts5();
+      // });
     },
-
+    // 10min订单查询
+    async orderECHARSData10Min() {
+      const {data} = await getflowing_water({
+        startTime: this.dayjs(new Date())
+          .subtract(10, "minute")
+          .format("YYYY-MM-DD HH:mm:ss"),
+        endTime: this.dayjs(new Date()).format("YYYY-MM-DD HH:mm:ss"),
+      });
+      if(data.code===200){
+        this.minutesAgo10=data.data.records
+        this.echarts3()
+      }
+    },
+    async orderECHARSData20Min() {
+      const {data} = await getflowing_water({
+        startTime: this.dayjs(new Date())
+          .subtract(20, "minute")
+          .format("YYYY-MM-DD HH:mm:ss"),
+        endTime: this.dayjs(new Date()).format("YYYY-MM-DD HH:mm:ss"),
+      });
+      if(data.code===200){
+        this.minutesAgo20=data.data.records
+        this.echarts4()
+      }
+    },
     changePage(val) {
       var that = this;
       getflowing_water({
-        startTime: that.formatDate(that.value1[0], "yyyy-MM-dd HH:mm:ss"),
-        endTime: that.formatDate(that.value1[1], "yyyy-MM-dd HH:mm:ss"),
+        startTime: this.dayjs(that.value1[0]).format("YYYY-MM-DD HH:mm:ss"),
+        endTime: this.dayjs(that.value1[1]).format("YYYY-MM-DD HH:mm:ss"),
       }).then((res) => {
         this.tableData = res.data.data.records;
       });
@@ -380,30 +473,29 @@ export default {
     search() {
       var that = this;
       getflowing_water({
-        startTime: that.formatDate(that.value1[0], "yyyy-MM-dd HH:mm:ss"),
-        endTime: that.formatDate(that.value1[1], "yyyy-MM-dd HH:mm:ss"),
+        startTime: this.dayjs(that.value1[0]).format("YYYY-MM-DD HH:mm:ss"),
+        endTime: this.dayjs(that.value1[1]).format("YYYY-MM-DD HH:mm:ss"),
       }).then((res) => {
         that.tableData = res.data.data.records;
         that.echarts();
         that.echarts2();
-        that.echarts3();
+        // that.echarts3();
       });
       // 成功概率查询
-      getbaifenbi(
-        that.formatDate(that.value1[0], "yyyy-MM-dd HH:mm:ss"),
-        that.formatDate(that.value1[1], "yyyy-MM-dd HH:mm:ss")
-      ).then((res) => {
-        that.cgl = res.data.data * 100;
-        that.echarts4();
-      });
-      writeOffCodestatistics(
-        that.formatDate(that.value1[0], "yyyy-MM-dd HH:mm:ss"),
-        that.formatDate(that.value1[1], "yyyy-MM-dd HH:mm:ss")
-      ).then((res) => {
-        console.log(res);
-        that.source = res.data.data;
-        that.echarts5();
-      });
+      // getbaifenbi(
+      //   this.dayjs(that.value1[0]).format("YYYY-MM-DD HH:mm:ss"),
+      //   this.dayjs(that.value1[1]).format("YYYY-MM-DD HH:mm:ss")
+      // ).then((res) => {
+      //   that.cgl = res.data.data * 100;
+      //   that.echarts4();
+      // });
+      // writeOffCodestatistics(
+      //   this.dayjs(that.value1[0]).format("YYYY-MM-DD HH:mm:ss"),
+      //   this.dayjs(that.value1[1]).format("YYYY-MM-DD HH:mm:ss")
+      // ).then((res) => {
+      //   that.source = res.data.data;
+      //   that.echarts5();
+      // });
     },
   },
 };
@@ -422,7 +514,7 @@ export default {
   flex-wrap: wrap;
   > div {
     height: 500px;
-    width: 25%;
+    width: 24%;
     &:last-child {
       width: 100%;
     }
